@@ -720,7 +720,7 @@ async function proceedToCheckout() {
 
     // Redirect to payment page (use hash route for SPA)
     setTimeout(() => {
-      window.location.hash = `#!payment?orderId=${encodeURIComponent(orderId)}`;
+      window.location.href = `/dashboard/#!payment?orderId=${encodeURIComponent(orderId)}`;
     }, 1500);
 
   } catch (error) {
