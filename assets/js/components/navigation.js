@@ -7,10 +7,10 @@ const navElements = {
   desktopNav: document.querySelector('.nav-desktop')
 };
 
-// Helper: Get logged-in user from sessionStorage
+// Helper: Get logged-in user from localStorage/sessionStorage
 function getLoggedInUser() {
   try {
-    const userStr = sessionStorage.getItem('sisitus_user');
+    const userStr = localStorage.getItem('sisitus_user') || sessionStorage.getItem('sisitus_user');
     return userStr ? JSON.parse(userStr) : null;
   } catch (e) {
     console.error('Error parsing user session:', e);

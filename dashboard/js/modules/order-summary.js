@@ -19,15 +19,17 @@
 import { CartManager } from '/assets/js/modules/unified-cart.js';
 import { showSuccess, showError, showInfo } from '/assets/js/modules/unified-utils.js';
 import APIClient from '/assets/js/modules/unified-api.js';
-import { ADDON_PACKAGES } from '/assets/js/config/api.config.js';
+import { ADDON_PACKAGES, DOMAIN_PACKAGES } from '/assets/js/config/api.config.js';
 
 // State management (currentUser can be null for guests)
 let orderState = {
   domain: null,
   tld: null,
-  price: 299000,
+  price: 199000,
   duration: 1,
-  selectedAddons: []
+  selectedAddons: [],
+  package: 'starter',
+  baseDomainPrice: 199000
 };
 
 /**
@@ -155,7 +157,10 @@ async function validateDomainAvailability() {
 
     // If available, optionally get pricing
     if (result.data && result.data.price) {
-      orderState.price = result.data.price;
+      orderState.baseDomainPrice = result.data.price;
+      if (orderState.package === 'starter') {
+        orderState.price = result.data.price;
+      }
     }
 
   } catch (error) {
@@ -187,6 +192,9 @@ function renderOrderSummary() {
     domainNameEl.textContent = `${orderState.domain}.${orderState.tld}`;
   }
 
+  // Render packages
+  renderPackages();
+
   // Render addons FIRST (before updating prices)
   renderAddons();
 
@@ -195,6 +203,62 @@ function renderOrderSummary() {
 
   // Update prices LAST (after addons are restored)
   updatePriceSummary();
+}
+
+/**
+ * Render package options
+ */
+function renderPackages() {
+  const packagesList = document.getElementById('packages-list');
+  if (!packagesList) return;
+
+  packagesList.innerHTML = '';
+
+  Object.values(DOMAIN_PACKAGES).forEach(pkg => {
+    const isSelected = orderState.package === pkg.id;
+    const pkgPrice = pkg.id === 'starter' ? orderState.baseDomainPrice : pkg.price;
+
+    const pkgEl = document.createElement('div');
+    pkgEl.className = `package-card ${isSelected ? 'selected' : ''}`;
+    
+    pkgEl.innerHTML = `
+      <div class="package-header">
+        <h4 class="package-name">${pkg.name}</h4>
+        <div class="package-price">Rp ${formatNumber(pkgPrice)}<small>/${pkg.period}</small></div>
+      </div>
+      <p class="package-desc">${pkg.description}</p>
+      <ul class="package-features">
+        ${pkg.features.map(f => `<li><i class="fas fa-check" style="color: #22C55E; margin-right: 8px;"></i> ${f}</li>`).join('')}
+      </ul>
+      <div class="package-select-badge">${isSelected ? '✓ Terpilih' : 'Pilih Paket'}</div>
+    `;
+
+    pkgEl.addEventListener('click', () => {
+      selectPackage(pkg.id);
+    });
+
+    packagesList.appendChild(pkgEl);
+  });
+}
+
+/**
+ * Handle package selection
+ */
+function selectPackage(packageId) {
+  orderState.package = packageId;
+  const pkg = DOMAIN_PACKAGES[packageId];
+  if (pkg) {
+    orderState.price = packageId === 'starter' ? orderState.baseDomainPrice : pkg.price;
+  }
+  
+  // Re-render packages to show selection highlight
+  renderPackages();
+  
+  // Update pricing summary
+  updatePriceSummary();
+  
+  // Save state
+  saveOrderState();
 }
 
 /**
@@ -270,6 +334,13 @@ function updatePriceSummary() {
   if (domainPriceEl) {
     domainPriceEl.textContent = `Rp ${formatNumber(domainPrice)}`;
     console.log(`[PRICE DEBUG] Updated domain-price to: Rp ${formatNumber(domainPrice)}`);
+  }
+
+  // Update domain price label to show selected package
+  const domainLabelEl = document.querySelector('.price-row label');
+  if (domainLabelEl) {
+    const pkgName = DOMAIN_PACKAGES[orderState.package]?.name || 'Starter';
+    domainLabelEl.textContent = `Paket ${pkgName} (1 tahun)`;
   }
   
   if (addonTotal > 0) {
@@ -355,7 +426,7 @@ function addToCart() {
 
     // Add domain to cart
     CartManager.add(fullDomain, orderState.tld, {
-      package: 'starter',
+      package: orderState.package,
       duration: orderState.duration,
       price: orderState.price,
       renewalPrice: orderState.price
@@ -428,6 +499,8 @@ function loadOrderState() {
       if (restored.tld) orderState.tld = restored.tld;
       if (restored.price) orderState.price = restored.price;
       if (restored.duration) orderState.duration = restored.duration;
+      if (restored.package) orderState.package = restored.package;
+      if (restored.baseDomainPrice) orderState.baseDomainPrice = restored.baseDomainPrice;
     }
   } catch (e) {
     console.warn('Could not load order state:', e);

@@ -3,6 +3,7 @@
  */
 
 import { DashboardAuth } from '../modules/auth.js';
+import { showConfirm } from '/assets/js/modules/unified-utils.js';
 
 export class DashboardNavbar {
   constructor() {

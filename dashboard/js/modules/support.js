@@ -30,7 +30,7 @@ export async function render(currentUser) {
               <div style="font-size: 40px; margin-bottom: 10px;">📧</div>
               <h4 style="margin: 10px 0; color: var(--color-text-dark);">Email</h4>
               <p style="font-size: 14px; color: var(--color-text-light); margin: 10px 0 15px;">Kirim pertanyaan ke email kami</p>
-              <a href="mailto:support@sisitus.com" class="btn btn-primary" style="font-size: 12px; padding: 8px 12px;">
+              <a href="mailto:hello@sisitus.com" class="btn btn-primary" style="font-size: 12px; padding: 8px 12px;">
                 Kirim Email
               </a>
             </div>

@@ -60,9 +60,15 @@ export async function render(user) {
       return;
     }
     
-    // Get order ID from URL
-    const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('orderId');
+    // Get order ID from URL (support both search params and hash params)
+    let orderId = new URLSearchParams(window.location.search).get('orderId');
+    if (!orderId) {
+      const hash = window.location.hash;
+      if (hash && hash.includes('?')) {
+        const queryPart = hash.split('?')[1];
+        orderId = new URLSearchParams(queryPart).get('orderId');
+      }
+    }
 
     if (!orderId) {
       throw new Error('Order ID tidak ditemukan');

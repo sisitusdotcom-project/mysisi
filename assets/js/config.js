@@ -84,7 +84,7 @@ export const footerContactData = [
   },
   {
     icon: "fas fa-envelope",
-    text: "<a href=\"mailto:sisitus@gmail.com\" class=\"footer-kontak-link\">admin@sisitus.com</a>"
+    text: "<a href=\"mailto:hello@sisitus.com\" class=\"footer-kontak-link\">hello@sisitus.com</a>"
   },
   {
     icon: "fas fa-clock",

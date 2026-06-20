@@ -109,6 +109,10 @@ export class SharedAuthForm {
           <button type="submit" class="btn btn-primary btn-block" style="width: 100%; padding: 14px; margin-bottom: 15px;">
             <i class="fas fa-user-plus"></i> Buat Akun
           </button>
+
+          <div style="text-align: center; margin-top: 15px; font-size: 14px;">
+            Sudah punya akun? <a href="#" class="switch-to-login" style="color: #2563EB; text-decoration: none; font-weight: bold;">Login di sini</a>
+          </div>
         </form>
 
         <!-- Login Form -->
@@ -124,7 +128,7 @@ export class SharedAuthForm {
           </div>
 
           <div class="form-actions">
-            <a href="/auth/forgot-password.html" class="forgot-password-link" style="text-decoration: none; color: #2563EB; font-size: 14px;">
+            <a href="#" class="forgot-password-link" style="text-decoration: none; color: #2563EB; font-size: 14px;">
               <i class="fas fa-question-circle"></i> Lupa Password?
             </a>
           </div>
@@ -132,6 +136,32 @@ export class SharedAuthForm {
           <button type="submit" class="btn btn-primary btn-block" style="width: 100%; padding: 14px; margin-bottom: 15px;">
             <i class="fas fa-sign-in-alt"></i> Login
           </button>
+
+          <div style="text-align: center; margin-top: 15px; font-size: 14px;">
+            Belum punya akun? <a href="#" class="switch-to-register" style="color: #2563EB; text-decoration: none; font-weight: bold;">Daftar di sini</a>
+          </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form class="auth-form forgot-password-form" id="forgot-password-form">
+          <div class="forgot-header" style="text-align: center; margin-bottom: 20px;">
+            <h3>Lupa Password?</h3>
+            <p style="color: #666; font-size: 14px;">Masukkan email Anda untuk menerima link reset password</p>
+          </div>
+          <div class="form-group">
+            <label>Alamat Email</label>
+            <input type="email" name="email" required placeholder="nama@example.com">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="width: 100%; padding: 14px; margin-bottom: 15px;">
+            <i class="fas fa-paper-plane"></i> Kirim Link Reset
+          </button>
+          
+          <div style="text-align: center; margin-top: 15px; font-size: 14px;">
+            <a href="#" class="back-to-login-link" style="text-decoration: none; color: #2563EB; font-size: 14px;">
+              <i class="fas fa-arrow-left"></i> Kembali ke Login
+            </a>
+          </div>
         </form>
 
         <!-- Divider -->
@@ -342,6 +372,31 @@ export class SharedAuthForm {
       });
     }
 
+    // Toggle links for switching view inline (especially in inline mode)
+    const toLoginBtns = this.container.querySelectorAll('.switch-to-login, .back-to-login-link');
+    toLoginBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.switchTab('login');
+      });
+    });
+
+    const toRegisterBtns = this.container.querySelectorAll('.switch-to-register');
+    toRegisterBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.switchTab('register');
+      });
+    });
+
+    const forgotPasswordLinks = this.container.querySelectorAll('.forgot-password-link');
+    forgotPasswordLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.switchTab('forgot-password');
+      });
+    });
+
     // Register form
     const registerForm = this.container.querySelector('#register-form');
     if (registerForm) {
@@ -354,12 +409,20 @@ export class SharedAuthForm {
       loginForm.addEventListener('submit', (e) => this.handleLogin(e));
     }
 
+    // Forgot password form
+    const forgotForm = this.container.querySelector('#forgot-password-form');
+    if (forgotForm) {
+      forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
+    }
+
     // Show register form by default in inline mode
     if (this.options.inlineMode) {
       const registerForm = this.container.querySelector('.register-form');
       const loginForm = this.container.querySelector('.login-form');
-      registerForm.classList.add('active');
-      loginForm.classList.remove('active');
+      const forgotForm = this.container.querySelector('.forgot-password-form');
+      if (registerForm) registerForm.classList.add('active');
+      if (loginForm) loginForm.classList.remove('active');
+      if (forgotForm) forgotForm.classList.remove('active');
     }
 
     // Auto-show login tab if coming from forgot password
@@ -394,6 +457,44 @@ export class SharedAuthForm {
 
     // Clear messages
     this.clearMessages();
+  }
+
+  /**
+   * Handle forgot password form submission inline
+   */
+  async handleForgotPassword(e) {
+    e.preventDefault();
+
+    if (this.state.isSubmitting) return;
+
+    const form = e.target;
+    const email = form.querySelector('input[name="email"]').value.trim();
+
+    if (!isValidEmail(email)) {
+      this.showError('Email tidak valid');
+      return;
+    }
+
+    try {
+      this.state.isSubmitting = true;
+      this.setSubmitButtonLoading(form, true, 'Mengirim...');
+
+      const result = await APIClient.requestPasswordReset(email);
+
+      if (!result.success) {
+        throw new Error(result.message || 'Gagal mengirim link reset password');
+      }
+
+      this.showSuccess('✓ Email Terkirim!', 'Silakan cek inbox/spam email Anda.');
+      form.reset();
+
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      this.showError(error.message || 'Terjadi kesalahan');
+    } finally {
+      this.state.isSubmitting = false;
+      this.setSubmitButtonLoading(form, false);
+    }
   }
 
   /**
@@ -454,15 +555,25 @@ export class SharedAuthForm {
       setTimeout(() => {
         // Save session if API returns user data
         if (result.data) {
-          AuthManager.saveSession(result.data);
-        }
+          const userData = {
+            userId: result.data.userId,
+            email: result.data.email || email,
+            displayName: result.data.displayName || displayName,
+            whatsapp: result.data.whatsapp || whatsapp || '',
+            photoURL: result.data.photoURL || '',
+            authMethod: result.data.authMethod || 'email',
+            emailVerified: result.data.emailVerified || false
+          };
+          
+          AuthManager.saveSession(userData);
 
-        // Call success callback
-        if (this.options.onRegisterSuccess) {
-          this.options.onRegisterSuccess(result.data);
-        } else {
-          // Default: redirect to verify email page
-          window.location.href = '/auth/verify-email.html';
+          // Call success callback
+          if (this.options.onRegisterSuccess) {
+            this.options.onRegisterSuccess(userData);
+          } else {
+            // Default: redirect to verify email page
+            window.location.href = '/auth/verify-email.html';
+          }
         }
       }, 1500);
 

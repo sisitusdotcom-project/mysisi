@@ -495,3 +495,117 @@ body {
     font-size: clamp(0.95rem, 1.1vw, 1rem);
   }
 }
+
+/* ========== PACKAGES SECTION ========== */
+.packages-section {
+  padding-bottom: clamp(1rem, 2vw, 1.5rem);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.packages-section h3 {
+  margin: 0 0 clamp(1rem, 2vw, 1.25rem) 0;
+  font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.package-card {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  background: var(--bg-white);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.package-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-blue);
+}
+
+.package-card.selected {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px var(--primary-blue);
+  background-color: rgba(37, 99, 235, 0.02);
+}
+
+.package-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.package-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.package-price {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary-blue);
+  text-align: right;
+}
+
+.package-price small {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.package-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.package-features {
+  list-style: none;
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.package-features li {
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+}
+
+.package-select-badge {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: all 0.2s ease;
+}
+
+.package-card.selected .package-select-badge {
+  background: var(--primary-blue);
+  color: var(--bg-white);
+}
+
+.package-card:hover:not(.selected) .package-select-badge {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary-blue);
+}

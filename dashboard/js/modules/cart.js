@@ -65,6 +65,30 @@ export async function render(currentUser) {
 
     cartState.currentUser = currentUser || AuthManager.getCurrentUser();
     
+    // Register background verification check listeners once
+    if (!window.cartListenersRegistered) {
+      window.cartListenersRegistered = true;
+      
+      const checkVerificationStatus = () => {
+        const user = AuthManager.getCurrentUser();
+        if (user && user.emailVerified && (!cartState.currentUser || !cartState.currentUser.emailVerified)) {
+          console.log('[Cart] Auto-detecting email verification success in background!');
+          cartState.currentUser = user;
+          cartState.userId = user.userId;
+          cartState.userEmail = user.email;
+          cartState.emailVerified = true;
+          render(user);
+        }
+      };
+
+      window.addEventListener('focus', checkVerificationStatus);
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'sisitus_user') {
+          checkVerificationStatus();
+        }
+      });
+    }
+    
     // Initialize auth if not already done
     if (!AuthManager.isLoggedIn && !cartState.currentUser) {
       AuthManager.init();
@@ -76,15 +100,27 @@ export async function render(currentUser) {
     // Route based on auth state
     if (!cartState.currentUser) {
       // Guest: show inline auth + cart preview
+      if (cartState.verificationPollInterval) {
+        clearInterval(cartState.verificationPollInterval);
+        cartState.verificationPollInterval = null;
+      }
       renderGuestCheckout();
     } else if (!cartState.currentUser.emailVerified) {
       // Logged in but not verified: show verification message
       renderEmailVerificationPrompt();
     } else if (CartManager.isEmpty()) {
       // Empty cart
+      if (cartState.verificationPollInterval) {
+        clearInterval(cartState.verificationPollInterval);
+        cartState.verificationPollInterval = null;
+      }
       renderEmptyCart();
     } else {
       // Authenticated + verified: show full cart
+      if (cartState.verificationPollInterval) {
+        clearInterval(cartState.verificationPollInterval);
+        cartState.verificationPollInterval = null;
+      }
       renderAuthenticatedCart();
     }
 
@@ -241,23 +277,26 @@ async function handleGoogleSignIn(response) {
 function renderEmailVerificationPrompt() {
   cartState.container.innerHTML = `
     <div class="page-container">
-      <div class="verification-prompt">
-        <div class="verification-alert">
-          <h2>
+      <div class="verification-prompt" style="max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="verification-alert" style="background-color: #fef3c7; border-left: 4px solid #d97706; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+          <h2 style="color: #92400e; margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 1.3rem;">
             <i class="fas fa-envelope-open-text"></i> Verifikasi Email Diperlukan
           </h2>
-          <p>
+          <p style="color: #b45309; margin-bottom: 8px;">
             Email Anda belum terverifikasi. Silakan cek email untuk link verifikasi.
           </p>
-          <p>
+          <p style="color: #b45309; margin: 0;">
             Email dikirim ke: <strong>${cartState.currentUser?.email}</strong>
           </p>
         </div>
 
-        <div style="text-align: center; margin-bottom: 20px;">
-          <p style="color: var(--text-secondary); margin-bottom: 1rem;">Setelah memverifikasi email, refresh halaman ini atau klik tombol di bawah.</p>
-          <button onclick="location.reload()" class="btn btn-primary">
-            <i class="fas fa-redo"></i> Refresh Halaman
+        <div style="text-align: center; margin-bottom: 25px;">
+          <div style="display: inline-flex; align-items: center; gap: 10px; color: #2563eb; font-weight: 500; font-size: 0.95rem; margin-bottom: 15px; padding: 8px 16px; background-color: #eff6ff; border-radius: 20px; animation: pulse 2s infinite;">
+            <i class="fas fa-spinner fa-spin"></i> Menunggu verifikasi email...
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">Halaman ini akan otomatis diperbarui setelah Anda memverifikasi email Anda.</p>
+          <button onclick="location.reload()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-redo"></i> Cek Manual / Refresh
           </button>
         </div>
 
@@ -272,6 +311,44 @@ function renderEmailVerificationPrompt() {
       </div>
     </div>
   `;
+
+  // Start polling to check if user has verified their email in the database
+  if (!cartState.verificationPollInterval) {
+    console.log('[Cart] Starting email verification status polling...');
+    cartState.verificationPollInterval = setInterval(async () => {
+      try {
+        if (!cartState.currentUser || cartState.currentUser.emailVerified) {
+          clearInterval(cartState.verificationPollInterval);
+          cartState.verificationPollInterval = null;
+          return;
+        }
+
+        const result = await APIClient.getUserProfile(cartState.currentUser.userId);
+        if (result.success && result.data && result.data.emailVerified) {
+          console.log('[Cart] User verified email (detected via polling)!');
+          clearInterval(cartState.verificationPollInterval);
+          cartState.verificationPollInterval = null;
+
+          // Save updated session
+          const updatedUser = { ...cartState.currentUser, emailVerified: true };
+          AuthManager.saveSession(updatedUser);
+
+          // Update state and show success message
+          cartState.currentUser = updatedUser;
+          cartState.emailVerified = true;
+          
+          showSuccess('✓ Email Terverifikasi', 'Halaman diperbarui, mengarahkan ke keranjang...');
+          
+          // Re-render full cart
+          setTimeout(() => {
+            render(updatedUser);
+          }, 1500);
+        }
+      } catch (error) {
+        console.warn('[Cart] Error polling verification status:', error);
+      }
+    }, 3000);
+  }
 }
 
 // ============================================================================
@@ -609,7 +686,7 @@ async function proceedToCheckout() {
       userId: cartState.userId,
       email: cartState.userEmail,
       domain: firstDomain,
-      packageId: 'starter',
+      packageId: summary.items[0]?.package || 'starter',
       addons: CartManager.getCart().addons || [],
       promoCode: cartState.promoCode || null,
       total: finalTotal

@@ -26,6 +26,14 @@ export class DashboardSidebar {
         route: '/dashboard/profile'
       },
       {
+        id: 'cart',
+        icon: 'icon-basket',
+        label: 'Keranjang',
+        route: '/cart/',
+        isExternal: true,
+        badge: 'cart-badge'
+      },
+      {
         id: 'wishlist',
         icon: 'icon-heart',
         label: 'Wishlist',
@@ -73,11 +81,13 @@ export class DashboardSidebar {
           } else if (item.badge) {
             badge = `<span class="menu-badge">${item.badge}</span>`;
           }
+          const href = item.isExternal ? item.route : `#!${item.route}`;
           return `
             <a 
-              href="#!${item.route}" 
+              href="${href}" 
               class="menu-item ${this.currentRoute === item.route ? 'active' : ''}"
               data-route="${item.route}"
+              ${item.isExternal ? 'data-external="true"' : ''}
               title="${item.label}"
             >
               <span class="menu-icon ${item.icon}"></span>
@@ -99,6 +109,9 @@ export class DashboardSidebar {
     // Add click handlers
     container.querySelectorAll('.menu-item').forEach(item => {
       item.addEventListener('click', (e) => {
+        if (item.dataset.external === 'true') {
+          return;
+        }
         e.preventDefault();
         const route = item.dataset.route;
         this.router.navigate(route);

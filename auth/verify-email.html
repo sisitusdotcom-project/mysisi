@@ -210,21 +210,32 @@
     }
 
     function showSuccess(title, message) {
+      const cartSummary = JSON.parse(localStorage.getItem('cart') || '{"domains":[]}');
+      const hasCartItems = cartSummary.domains && cartSummary.domains.length > 0;
+      
+      const primaryBtn = hasCartItems 
+        ? '<a href="/cart/" class="btn-primary"><i class="fas fa-shopping-cart"></i> Lanjutkan Pembayaran</a>'
+        : '<a href="/dashboard/" class="btn-primary"><i class="fas fa-chart-line"></i> Buka Dashboard</a>';
+        
+      const redirectMsg = hasCartItems
+        ? 'Halaman akan otomatis diarahkan ke keranjang belanja dalam 2 detik...'
+        : 'Halaman akan otomatis diarahkan ke dashboard dalam 2 detik...';
+
       statusContent.innerHTML = `
         <div class="status-icon success-message"><i class="fas fa-check-circle"></i></div>
         <h2 class="success-message">${title}</h2>
         <p>${message}</p>
         <div class="info-box">
           <strong><i class="fas fa-info-circle"></i> Anda sekarang dapat:</strong><br>
-          ✅ Lanjut checkout di keranjang belanja<br>
-          ✅ Memilih paket dan aksesori (addon)<br>
-          ✅ Melakukan pembayaran<br>
+          ${hasCartItems 
+            ? '✅ Lanjutkan checkout di keranjang belanja<br>✅ Melakukan pembayaran via Midtrans<br>' 
+            : '✅ Mengakses dashboard klien Anda<br>✅ Mengelola layanan digital Anda<br>'}
         </div>
         <div class="button-group">
-          <a href="/cart/" class="btn-primary"><i class="fas fa-shopping-cart"></i> Kembali ke Keranjang</a>
+          ${primaryBtn}
           <a href="/" class="btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
         </div>
-        <p style="color: #999; font-size: 12px; margin-top: 20px;">Halaman akan otomatis diarahkan ke keranjang dalam 2 detik...</p>
+        <p style="color: #999; font-size: 12px; margin-top: 20px;">${redirectMsg}</p>
       `;
     }
 
@@ -277,23 +288,28 @@
               lastActivity: Date.now(),
               expiresAt: Date.now() + (30 * 60 * 1000) // 30 min expiry
             });
+            localStorage.setItem('sisitus_user', userData);
             sessionStorage.setItem('sisitus_user', userData);
             localStorage.setItem('currentUser', JSON.stringify(data.data));
             console.log('✅ User session updated with emailVerified:', data.data);
           }
 
+          const cartSummary = JSON.parse(localStorage.getItem('cart') || '{"domains":[]}');
+          const hasCartItems = cartSummary.domains && cartSummary.domains.length > 0;
+
           showSuccess(
             '<i class="fas fa-check"></i> Email Berhasil Diverifikasi!',
-            'Akun Anda sudah aktif. Anda akan diarahkan kembali ke keranjang belanja...'
+            hasCartItems 
+              ? 'Akun Anda sudah aktif. Anda akan diarahkan kembali ke keranjang belanja...'
+              : 'Akun Anda sudah aktif. Anda akan diarahkan ke dashboard Anda...'
           );
           
-          // Auto-redirect after 2 seconds to CART (if items exist) or checkout
+          // Auto-redirect after 2 seconds
           setTimeout(() => {
-            const cartSummary = JSON.parse(localStorage.getItem('cart') || '{"domains":[]}');
-            if (cartSummary.domains && cartSummary.domains.length > 0) {
+            if (hasCartItems) {
               window.location.href = '/cart/';
             } else {
-              window.location.href = '/?section=cek-domain';
+              window.location.href = '/dashboard/';
             }
           }, 2000);
         } else {

@@ -9,11 +9,11 @@
 // ========== GOOGLE APPS SCRIPT CONFIGURATION ==========
 export const GAS_CONFIG = {
   // Main API endpoint untuk semua backend calls
-  URL: 'https://script.google.com/macros/s/AKfycbzrRjHyUIg4ETD7zQx9CMuA1M0Lg_Fqh4ZvHBbmG-3m4ffEobHa9ne9J9EaHFmmgMP3/exec',
-  
+  URL: 'https://script.google.com/macros/s/AKfycbx8PoYtYldvaKN2OF8lmJBAuVI5wdfvFRx5gWD0RoOmhq22kRR_y6H1MpckcjoynCx6/exec',
+
   // Timeout untuk fetch calls (dalam milliseconds)
   TIMEOUT: 30000,
-  
+
   // Actions/endpoints yang dipanggil
   ACTIONS: {
     // Auth related
@@ -24,23 +24,23 @@ export const GAS_CONFIG = {
     REQUEST_PASSWORD_RESET: 'requestPasswordReset',
     RESET_PASSWORD: 'resetPassword',
     VERIFY_EMAIL: 'verifyEmail',
-    
+
     // Promo & Domain related
     VALIDATE_PROMO: 'validatePromoCode',
     CHECK_DOMAIN: 'checkDomain',
-    
+
     // Order related
     CREATE_ORDER: 'createOrderWithAuth',
     GET_ORDERS: 'getUserOrders',
     GET_ORDER_DETAIL: 'getOrderDetail',
     UPDATE_ORDER_STATUS: 'updateOrderStatus',
     GET_USER_ORDER_STATS: 'getUserOrderStats',
-    
+
     // Payment related
     GET_SNAP_TOKEN: 'getSnapToken',
     VERIFY_PAYMENT: 'verifyPaymentStatus',
     HANDLE_MIDTRANS_WEBHOOK: 'handleMidtransWebhook',
-    
+
     // User profile
     GET_USER_PROFILE: 'getUserProfile',
     UPDATE_USER_PROFILE: 'updateUserProfile',
@@ -51,20 +51,20 @@ export const GAS_CONFIG = {
 export const MIDTRANS_CONFIG = {
   // Environment: 'sandbox' untuk development, 'production' untuk live
   ENVIRONMENT: 'sandbox',
-  
+
   // Client Key - untuk frontend Snap integration
   CLIENT_KEY: 'Mid-client-5Pt2HLTUbjJd24VZ',
-  
+
   // Server Key - untuk backend verification & token generation
   // Note: Must be set in Google Apps Script Properties, not here
   SERVER_KEY: '',
-  
+
   // Snap API URLs
   SNAP_URL: {
     sandbox: 'https://app.sandbox.midtrans.com/snap/snap.js',
     production: 'https://app.midtrans.com/snap/snap.js'
   },
-  
+
   // Payment status values
   STATUS: {
     PENDING: 'pending',
@@ -95,7 +95,7 @@ export const DOMAIN_PACKAGES = {
       'Auto renewal'
     ]
   },
-  
+
   // Professional Package
   professional: {
     id: 'professional',
@@ -112,7 +112,7 @@ export const DOMAIN_PACKAGES = {
       'Daily backups'
     ]
   },
-  
+
   // Business Package
   business: {
     id: 'business',
@@ -130,7 +130,7 @@ export const DOMAIN_PACKAGES = {
       'Priority support'
     ]
   },
-  
+
   // Enterprise Package
   enterprise: {
     id: 'enterprise',
@@ -199,7 +199,7 @@ export const ADDON_PACKAGES = {
     duration: 1,
     recommended: true
   },
-  
+
   privacy_protection: {
     id: 'privacy_protection',
     name: 'Privacy Protection',
@@ -208,7 +208,7 @@ export const ADDON_PACKAGES = {
     duration: 1,
     recommended: false
   },
-  
+
   email_2gb: {
     id: 'email_2gb',
     name: 'Email 2GB',
@@ -217,7 +217,7 @@ export const ADDON_PACKAGES = {
     duration: 1,
     recommended: false
   },
-  
+
   email_10gb: {
     id: 'email_10gb',
     name: 'Email 10GB',
