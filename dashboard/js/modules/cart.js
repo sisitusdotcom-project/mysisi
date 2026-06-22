@@ -39,6 +39,7 @@ let cartState = {
   // Promo state
   promoCode: null,
   promoDiscount: 0,
+  promoDescription: null,
   promoValidated: false,
   isValidatingPromo: false,
   
@@ -264,8 +265,11 @@ function renderGuestCheckout() {
                 <span style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--text-primary);">${formatPrice(ppn)}</span>
               </div>
               ${promoDiscount > 0 ? `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; color: #27ae60;">
-                  <span>Diskon Promo:</span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem; color: #27ae60;">
+                  <div style="display: flex; flex-direction: column; text-align: left;">
+                    <span>Diskon Promo:</span>
+                    ${cartState.promoDescription ? `<span style="font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 2px;">(${cartState.promoDescription})</span>` : ''}
+                  </div>
                   <span style="font-family: 'Courier New', monospace; font-weight: 600;">-${formatPrice(promoDiscount)}</span>
                 </div>
               ` : ''}
@@ -580,8 +584,11 @@ function renderAuthenticatedCart() {
               </div>
 
               ${promoTotal > 0 ? `
-                <div class="price-row discount">
-                  <span class="price-row-label"><i class="fas fa-tag"></i> Diskon Promo:</span>
+                <div class="price-row discount" style="align-items: flex-start; height: auto; padding: 8px 0;">
+                  <div style="display: flex; flex-direction: column; text-align: left;">
+                    <span class="price-row-label"><i class="fas fa-tag"></i> Diskon Promo:</span>
+                    ${cartState.promoDescription ? `<span class="promo-desc-detail" style="font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 2px; padding-left: 18px;">(${cartState.promoDescription})</span>` : ''}
+                  </div>
                   <span class="price-value">-${formatPrice(promoTotal)}</span>
                 </div>
               ` : ''}
@@ -714,21 +721,43 @@ function renderCartItem(item) {
 
 function loadSavedPromo() {
   try {
-    const saved = localStorage.getItem('saved_promo_code');
-    if (saved) {
-      cartState.promoCode = saved;
+    const savedCode = localStorage.getItem('saved_promo_code');
+    const savedDesc = localStorage.getItem('saved_promo_description');
+    const savedVal = localStorage.getItem('saved_promo_discount_value');
+    const savedType = localStorage.getItem('saved_promo_discount_type');
+    
+    if (savedCode) {
+      cartState.promoCode = savedCode;
+      cartState.promoDescription = savedDesc || '';
+      cartState.promoValidated = true;
+      
+      const summary = CartManager.getSummary();
+      const subtotal = summary.subtotal || 0;
+      
+      const val = parseFloat(savedVal) || 0;
+      if (savedType === 'percentage') {
+        cartState.promoDiscount = Math.round(subtotal * (val / 100));
+      } else {
+        cartState.promoDiscount = val;
+      }
     }
   } catch (e) {
     console.warn('[Cart] Could not load saved promo:', e);
   }
 }
 
-function saveSavedPromo() {
+function saveSavedPromo(promoData) {
   try {
-    if (cartState.promoCode) {
+    if (cartState.promoCode && promoData) {
       localStorage.setItem('saved_promo_code', cartState.promoCode);
-    } else {
+      localStorage.setItem('saved_promo_description', promoData.description || '');
+      localStorage.setItem('saved_promo_discount_value', promoData.discount || 0);
+      localStorage.setItem('saved_promo_discount_type', promoData.discountType || 'fixed');
+    } else if (!cartState.promoCode) {
       localStorage.removeItem('saved_promo_code');
+      localStorage.removeItem('saved_promo_description');
+      localStorage.removeItem('saved_promo_discount_value');
+      localStorage.removeItem('saved_promo_discount_type');
     }
   } catch (e) {
     console.warn('[Cart] Could not save promo:', e);
@@ -773,6 +802,7 @@ async function applyPromoCode() {
 
       cartState.promoCode = code;
       cartState.promoDiscount = discount;
+      cartState.promoDescription = result.data.description;
       cartState.promoValidated = true;
 
       if (promoMsg) {
@@ -781,14 +811,13 @@ async function applyPromoCode() {
       }
 
       showSuccess('✓ Berhasil', 'Kode promo diterapkan');
-      saveSavedPromo();
+      saveSavedPromo(result.data);
 
-      // Re-render cart
       render(cartState.currentUser);
     } else {
-      // Invalid promo
       cartState.promoCode = null;
       cartState.promoDiscount = 0;
+      cartState.promoDescription = null;
       cartState.promoValidated = false;
 
       if (promoMsg) {
@@ -796,7 +825,7 @@ async function applyPromoCode() {
         promoMsg.style.color = '#dc2626';
       }
 
-      localStorage.removeItem('saved_promo_code');
+      saveSavedPromo(null);
     }
   } catch (error) {
     console.error('[Cart] Promo validation error:', error);
@@ -884,8 +913,13 @@ async function proceedToCheckout() {
 
     console.log('[Cart] Order created:', orderId);
     
-    // Clear cart so previous checkout items are not carried over to the next order
+    // Clear cart and promo so previous checkout items/promos are not carried over to the next order
     CartManager.clear();
+    cartState.promoCode = null;
+    cartState.promoDiscount = 0;
+    cartState.promoDescription = null;
+    cartState.promoValidated = false;
+    saveSavedPromo(null);
     
     showSuccess('✓ Order Dibuat', 'Mengarahkan ke pembayaran...');
 
