@@ -15,7 +15,7 @@
 
 import { AuthManager } from '/assets/js/modules/unified-auth.js';
 import APIClient from '/assets/js/modules/unified-api.js';
-import { showSuccess, showError, showLoading, hideLoading, isValidEmail, isValidPhoneNumber } from '/assets/js/modules/unified-utils.js';
+import { showSuccess, showError, showLoading, hideLoading, isValidEmail, isValidPhoneNumber, initPasswordToggle } from '/assets/js/modules/unified-utils.js';
 
 export class SharedAuthForm {
   constructor(options = {}) {
@@ -429,6 +429,9 @@ export class SharedAuthForm {
     if (window.location.hash === '#!login') {
       this.switchTab('login');
     }
+
+    // Initialize password toggles
+    initPasswordToggle(this.container);
   }
 
   /**

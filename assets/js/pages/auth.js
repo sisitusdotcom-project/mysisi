@@ -29,7 +29,8 @@ import {
   isValidPassword,
   isValidPhoneNumber,
   setButtonLoading,
-  handleAPIError
+  handleAPIError,
+  initPasswordToggle
 } from '../modules/unified-utils.js';
 
 // ============================================================================
@@ -122,7 +123,8 @@ function initPage() {
   setupAuthForms();
   initializeGoogleSignIn();
 
-
+  // Initialize password toggles
+  initPasswordToggle(document);
 }
 
 // ============================================================================

@@ -4,7 +4,7 @@
  */
 
 import APIClient from '/assets/js/modules/unified-api.js';
-import { showError, showSuccess } from '/assets/js/modules/unified-utils.js';
+import { showError, showSuccess, initPasswordToggle } from '/assets/js/modules/unified-utils.js';
 import { DashboardAuth } from './auth.js';
 
 export async function render(currentUser) {
@@ -43,6 +43,7 @@ export async function render(currentUser) {
     // Setup password change form
     const formChangePassword = document.getElementById('form-change-password');
     if (formChangePassword) {
+      initPasswordToggle(formChangePassword);
       formChangePassword.addEventListener('submit', async (e) => {
         e.preventDefault();
         await handlePasswordChange(currentUser.userId);

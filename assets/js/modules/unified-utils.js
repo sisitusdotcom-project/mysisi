@@ -472,6 +472,75 @@ export function hideLoadingOverlay() {
   }
 }
 
+/**
+ * Initialize password toggle visibility feature for input[type="password"] elements
+ */
+export function initPasswordToggle(container = document) {
+  const passwordInputs = container.querySelectorAll('input[type="password"]');
+  passwordInputs.forEach(input => {
+    // Prevent double wrapping/init
+    if (input.dataset.passwordToggleInit) return;
+    input.dataset.passwordToggleInit = 'true';
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'password-input-wrapper';
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'block';
+    wrapper.style.width = '100%';
+
+    // Insert wrapper before input in the DOM tree
+    input.parentNode.insertBefore(wrapper, input);
+    // Move input inside wrapper
+    wrapper.appendChild(input);
+
+    // Ensure input has padding-right so text doesn't overlap the eye icon
+    input.style.paddingRight = '40px';
+
+    // Create toggle button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'password-toggle-btn';
+    toggleBtn.setAttribute('aria-label', 'Tampilkan sandi');
+    toggleBtn.style.position = 'absolute';
+    toggleBtn.style.right = '12px';
+    toggleBtn.style.top = '50%';
+    toggleBtn.style.transform = 'translateY(-50%)';
+    toggleBtn.style.border = 'none';
+    toggleBtn.style.background = 'none';
+    toggleBtn.style.cursor = 'pointer';
+    toggleBtn.style.color = '#64748b';
+    toggleBtn.style.fontSize = '16px';
+    toggleBtn.style.padding = '0';
+    toggleBtn.style.margin = '0';
+    toggleBtn.style.display = 'flex';
+    toggleBtn.style.alignItems = 'center';
+    toggleBtn.style.justifyContent = 'center';
+    toggleBtn.style.zIndex = '5';
+
+    // FontAwesome eye icon
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-eye';
+    toggleBtn.appendChild(icon);
+    wrapper.appendChild(toggleBtn);
+
+    // Event listener to toggle type
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+        toggleBtn.setAttribute('aria-label', 'Sembunyikan sandi');
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+        toggleBtn.setAttribute('aria-label', 'Tampilkan sandi');
+      }
+    });
+  });
+}
+
 // ========== EXPORT ALL ==========
 
 export const Utilities = {
@@ -502,6 +571,7 @@ export const Utilities = {
   setButtonLoading,
   fadeOut,
   fadeIn,
+  initPasswordToggle,
   
   // Storage
   getStorage,
