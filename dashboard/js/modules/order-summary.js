@@ -45,9 +45,6 @@ export async function render(currentUser) {
       console.log(`  - ${key}: ${addon.name} (Rp ${addon.price})`);
     });
 
-    // Load saved order state from localStorage
-    loadOrderState();
-
     // Extract domain from URL (hash-based routing support)
     const domain = extractDomainFromUrl();
     
@@ -60,6 +57,16 @@ export async function render(currentUser) {
     orderState.domain = domainName;
     orderState.tld = tld;
     console.log(`[ORDER-SUMMARY] Domain parsed: ${domainName}.${tld}`);
+
+    // Try to load state from cart first
+    const loadedFromCart = loadFromCart(`${domainName}.${tld}`);
+    
+    if (!loadedFromCart) {
+      // Fallback to localStorage saved state
+      loadOrderState();
+      orderState.domain = domainName;
+      orderState.tld = tld;
+    }
 
     // Validate domain availability
     await validateDomainAvailability();
@@ -287,6 +294,15 @@ function renderAddons() {
     addonEl.className = 'addon-item';
     addonEl.style.cursor = 'pointer';
     
+    // Apply styling on initial render if selected
+    if (isSelected) {
+      addonEl.style.borderColor = 'var(--primary-blue)';
+      addonEl.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+    } else {
+      addonEl.style.borderColor = 'var(--border-color)';
+      addonEl.style.backgroundColor = 'var(--bg-light)';
+    }
+    
     addonEl.innerHTML = `
       <input type="checkbox" data-addon-id="${addon.id}" ${isSelected ? 'checked' : ''} style="display: none;">
       <div class="addon-info">
@@ -470,8 +486,44 @@ function restoreSelectedAddons() {
     const checkbox = document.querySelector(`input[data-addon-id="${addonId}"]`);
     if (checkbox) {
       checkbox.checked = true;
+      const label = checkbox.closest('.addon-item');
+      if (label) {
+        label.style.borderColor = 'var(--primary-blue)';
+        label.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+      }
     }
   });
+}
+
+/**
+ * Load order state from active CartManager cart data if domain exists
+ */
+function loadFromCart(domainName) {
+  try {
+    const cart = CartManager.getCart();
+    if (!cart) return false;
+
+    // Search for matching domain in cart
+    const cartDomain = cart.domains.find(d => d.domain.toLowerCase() === domainName.toLowerCase());
+    if (cartDomain) {
+      orderState.domain = cartDomain.domain.split('.')[0];
+      orderState.tld = cartDomain.tld;
+      orderState.package = cartDomain.package || 'starter';
+      orderState.duration = cartDomain.duration || 1;
+      orderState.price = cartDomain.price;
+
+      // Restore addons from cart
+      if (cart.addons && Array.isArray(cart.addons)) {
+        orderState.selectedAddons = cart.addons.map(a => a.id.toLowerCase());
+      } else {
+        orderState.selectedAddons = [];
+      }
+      return true;
+    }
+  } catch (e) {
+    console.warn('Could not load state from cart:', e);
+  }
+  return false;
 }
 
 /**
