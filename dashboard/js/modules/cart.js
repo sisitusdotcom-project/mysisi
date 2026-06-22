@@ -153,44 +153,12 @@ export async function render(currentUser) {
 // ============================================================================
 
 function renderGuestCheckout() {
-  const cartData = CartManager.getCart();
-  const items = (cartData && cartData.domains) || [];
-  const summary = CartManager.getSummary();
-
   cartState.container.innerHTML = `
     <div class="page-container">
       <div class="cart-page guest-checkout-grid">
         
-        <!-- Cart Preview -->
-        <div class="cart-preview">
-          <h3 class="preview-title">
-            <i class="fas fa-shopping-cart"></i> Preview Keranjang
-          </h3>
-          <div class="preview-body">
-            ${items.length > 0 ? `
-              <div class="preview-items">
-                ${items.map(item => `
-                  <div class="preview-item" style="align-items: center;">
-                    <div style="flex: 1;">
-                      <div class="preview-item-name">${item.domain}</div>
-                      <div class="preview-item-meta">${item.duration || 1} tahun</div>
-                    </div>
-                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                      <div class="preview-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
-                      <button onclick="window.removeGuestCartItem('${item.domain}', this)" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 2px 0; display: flex; align-items: center; gap: 4px;">
-                        <i class="fas fa-trash-alt"></i> Hapus
-                      </button>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-              <div class="preview-total">
-                <span>Total:</span>
-                <span>${formatPrice(summary.total)}</span>
-              </div>
-            ` : '<div class="preview-empty">Keranjang kosong</div>'}
-          </div>
-        </div>
+        <!-- Cart Preview Container -->
+        <div id="cart-preview-container"></div>
 
         <!-- Auth Form Container -->
         <div>
@@ -200,6 +168,106 @@ function renderGuestCheckout() {
       </div>
     </div>
   `;
+
+  // Function to render the cart preview card reactively
+  const updateCartPreview = () => {
+    const cartData = CartManager.getCart();
+    const items = (cartData && cartData.domains) || [];
+    const addons = (cartData && cartData.addons) || [];
+    const summary = CartManager.getSummary();
+
+    const domainSubtotal = summary.subtotal;
+    const addonsTotal = addons.reduce((sum, a) => sum + a.price, 0);
+    const subtotalCombined = domainSubtotal + addonsTotal;
+    const ppn = Math.round(subtotalCombined * 0.11);
+    const promoDiscount = cartState.promoDiscount || 0;
+    const finalTotal = subtotalCombined + ppn - promoDiscount;
+
+    const previewContainer = document.getElementById('cart-preview-container');
+    if (!previewContainer) return;
+
+    previewContainer.innerHTML = `
+      <div class="cart-preview">
+        <h3 class="preview-title">
+          <i class="fas fa-shopping-cart"></i> Preview Keranjang
+        </h3>
+        <div class="preview-body" style="background: var(--bg-white); border: 1px solid var(--border-light); border-radius: var(--radius); padding: clamp(1rem, 2vw, 1.25rem);">
+          ${items.length > 0 ? `
+            <div class="preview-items" style="border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; padding-bottom: 0.5rem;">
+              ${items.map(item => `
+                <div class="preview-item" style="align-items: center; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-light); display: flex; justify-content: space-between; gap: 1rem;">
+                  <div style="flex: 1;">
+                    <div class="preview-item-name" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); font-size: 14px;">${item.domain}</div>
+                    <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                      <span style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
+                      <span class="preview-item-meta" style="color: var(--text-light); font-size: 11px;">${item.duration || 1} tahun</span>
+                    </div>
+                  </div>
+                  <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                    <div class="preview-item-price" style="font-weight: 700; color: var(--primary-blue); font-family: 'Courier New', monospace;">${formatPrice(item.price * (item.duration || 1))}</div>
+                    <button onclick="window.removeGuestCartItem('${item.domain}')" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 2px 0; display: flex; align-items: center; gap: 4px;">
+                      <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            ${addons.length > 0 ? `
+              <div class="preview-addons" style="border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; padding-bottom: 0.5rem;">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin: 0 0 0.5rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Layanan Tambahan</h4>
+                ${addons.map(addon => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 12px;">
+                    <div>
+                      <div style="font-weight: 600; color: var(--text-primary);">${addon.name}</div>
+                      <div style="color: var(--text-light); font-size: 10px;">${addon.duration} tahun</div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--primary-blue); font-family: 'Courier New', monospace;">${formatPrice(addon.price)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <!-- Detailed Price Breakdown -->
+            <div class="preview-breakdown" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; border-bottom: 2px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                <span>Domain (${items.length}):</span>
+                <span style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--text-primary);">${formatPrice(domainSubtotal)}</span>
+              </div>
+              ${addonsTotal > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                  <span>Layanan Tambahan:</span>
+                  <span style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--text-primary);">${formatPrice(addonsTotal)}</span>
+                </div>
+              ` : ''}
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; font-weight: 600;">
+                <span>Subtotal:</span>
+                <span style="font-family: 'Courier New', monospace; color: var(--text-primary);">${formatPrice(subtotalCombined)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                <span>PPN (11%):</span>
+                <span style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--text-primary);">${formatPrice(ppn)}</span>
+              </div>
+              ${promoDiscount > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; color: #27ae60;">
+                  <span>Diskon Promo:</span>
+                  <span style="font-family: 'Courier New', monospace; font-weight: 600;">-${formatPrice(promoDiscount)}</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="preview-total" style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--primary-blue);">
+              <span>Total Pembayaran:</span>
+              <span style="font-family: 'Courier New', monospace;">${formatPrice(finalTotal)}</span>
+            </div>
+          ` : '<div class="preview-empty">Keranjang kosong</div>'}
+        </div>
+      </div>
+    `;
+  };
+
+  // Initial render of preview
+  updateCartPreview();
 
   // Initialize SharedAuthForm with callbacks
   const authForm = new SharedAuthForm({
@@ -216,29 +284,9 @@ function renderGuestCheckout() {
   window.handleGoogleSignIn = handleGoogleSignIn;
 
   // Expose guest cart item remover that updates DOM dynamically without losing form inputs
-  window.removeGuestCartItem = (domain, btn) => {
+  window.removeGuestCartItem = (domain) => {
     CartManager.remove(domain);
-    
-    // Find the item container and remove it
-    const itemElement = btn.closest('.preview-item');
-    if (itemElement) {
-      itemElement.remove();
-    }
-    
-    // Update the total price
-    const updatedSummary = CartManager.getSummary();
-    const totalElement = document.querySelector('.preview-total span:last-child');
-    if (totalElement) {
-      totalElement.textContent = formatPrice(updatedSummary.total);
-    }
-    
-    // If cart is now empty, render empty state
-    if (CartManager.isEmpty()) {
-      const previewBody = document.querySelector('.preview-body');
-      if (previewBody) {
-        previewBody.innerHTML = '<div class="preview-empty">Keranjang kosong</div>';
-      }
-    }
+    updateCartPreview();
   };
 }
 
