@@ -527,22 +527,6 @@ function renderAuthenticatedCart() {
               </div>
             </div>
 
-            ${addons.length > 0 ? `
-              <div class="addons-section">
-                <h3 class="addons-title"><i class="fas fa-cube"></i> Layanan Tambahan</h3>
-                <div class="addons-list">
-                  ${addons.map(addon => `
-                    <div class="addon-item">
-                      <div class="addon-info">
-                        <div class="addon-name">${addon.name}</div>
-                        <div class="addon-desc">${addon.duration} tahun</div>
-                      </div>
-                      <div class="addon-price">${formatPrice(addon.price)}</div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
           </div>
 
           <!-- Cart Summary & Checkout -->
@@ -621,6 +605,20 @@ function renderAuthenticatedCart() {
   window.proceedToCheckout = proceedToCheckout;
   window.removeCartItem = removeCartItem;
   window.removeAddon = removeAddon;
+
+  // Expose toggle details handler for authenticated cart items
+  window.toggleCartItemDetails = (domain) => {
+    const safeId = domain.replace(/\./g, '-');
+    const detailsEl = document.getElementById(`auth-details-${safeId}`);
+    const chevronEl = document.getElementById(`auth-chevron-${safeId}`);
+    if (detailsEl) {
+      const isHidden = detailsEl.style.display === 'none';
+      detailsEl.style.display = isHidden ? 'block' : 'none';
+      if (chevronEl) {
+        chevronEl.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+  };
 }
 
 // ============================================================================
@@ -629,24 +627,59 @@ function renderAuthenticatedCart() {
 
 function renderCartItem(item) {
   const renewalInfo = item.renewalPrice && item.renewalPrice !== item.price
-    ? `<div class="cart-item-renewal"><i class="fas fa-sync"></i> Pembaruan: ${formatPrice(item.renewalPrice)}/tahun</div>`
+    ? `<div class="cart-item-renewal" style="margin-top: 4px;"><i class="fas fa-sync"></i> Pembaruan: ${formatPrice(item.renewalPrice)}/tahun</div>`
     : '';
+  const safeId = item.domain.replace(/\./g, '-');
+  
+  // Get addons
+  const cartData = CartManager.getCart();
+  const addons = (cartData && cartData.addons) || [];
 
   return `
-    <div class="cart-item">
-      <div class="cart-item-info">
-        <h4 class="cart-item-domain">${item.domain}</h4>
-        <div class="cart-item-details">
-          <span class="cart-item-badge">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
-          <span class="cart-item-duration"><i class="fas fa-calendar"></i> ${item.duration || 1} tahun</span>
+    <div class="cart-item" style="display: block; margin-bottom: 1rem;">
+      <div class="cart-item-header" style="display: flex; justify-content: space-between; align-items: center; gap: clamp(1rem, 2vw, 1.5rem);">
+        <div onclick="window.toggleCartItemDetails('${item.domain}')" style="cursor: pointer; flex: 1; user-select: none;">
+          <h4 class="cart-item-domain" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); margin: 0; font-size: 16px; display: flex; align-items: center; gap: 6px;">
+            ${item.domain}
+            <i class="fas fa-chevron-down" id="auth-chevron-${safeId}" style="font-size: 11px; color: var(--text-light); transition: transform 0.2s;"></i>
+          </h4>
+          <div class="cart-item-details" style="display: flex; gap: 8px; align-items: center; margin-top: 6px; border: none; padding: 0;">
+            <span class="cart-item-badge" style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
+            <span class="cart-item-duration" style="color: var(--text-light); font-size: 11px;"><i class="fas fa-calendar"></i> ${item.duration || 1} tahun</span>
+          </div>
+          ${renewalInfo}
         </div>
-        ${renewalInfo}
+        <div class="cart-item-actions" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding: 0; border: none;">
+          <div class="cart-item-price" style="font-weight: 800; color: var(--primary-blue); font-family: 'Courier New', monospace; font-size: 16px;">${formatPrice(item.price * (item.duration || 1))}</div>
+          <button onclick="window.removeCartItem('${item.domain}')" class="btn-remove" style="display: flex; align-items: center; gap: 4px; background: none; border: none; color: #ef4444; font-size: 12px; cursor: pointer; padding: 4px 0;">
+            <i class="fas fa-trash-alt"></i> Hapus
+          </button>
+        </div>
       </div>
-      <div class="cart-item-actions">
-        <div class="cart-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
-        <button onclick="window.removeCartItem('${item.domain}')" class="btn-remove">
-          <i class="fas fa-trash"></i> Hapus
-        </button>
+
+      <!-- Collapsible Details -->
+      <div id="auth-details-${safeId}" style="display: none; padding: 0.75rem 0.75rem; margin-top: 0.75rem; background: var(--bg-light); border-radius: var(--radius); border-left: 3px solid var(--primary-blue);">
+        <div style="font-size: 13px; color: var(--text-primary);">
+          <strong>Paket:</strong> <span style="text-transform: uppercase; font-weight: 600; color: var(--primary-blue);">${item.package ? item.package : 'Starter'}</span> (Rp ${formatPrice(item.price)} / tahun)
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <strong style="font-size: 13px; color: var(--text-secondary);">Layanan Tambahan:</strong>
+          ${addons.length > 0 ? `
+            <div style="margin-top: 4px;">
+              ${addons.map(addon => `
+                <div style="font-size: 12px; margin-top: 2px; color: var(--text-primary); display: flex; justify-content: space-between;">
+                  <span>• ${addon.name}</span>
+                  <span style="font-family: 'Courier New', monospace;">${formatPrice(addon.price)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<div style="font-size: 12px; color: var(--text-light); font-style: italic; margin-top: 2px;">Tidak ada layanan tambahan</div>'}
+        </div>
+        <div style="margin-top: 0.8rem; text-align: left;">
+          <a href="/order-summary/?domain=${item.domain}" style="display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: var(--primary-blue); border: 1px solid #bbdefb; padding: 4px 8px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+            <i class="fas fa-edit"></i> Edit Paket & Layanan
+          </a>
+        </div>
       </div>
     </div>
   `;
