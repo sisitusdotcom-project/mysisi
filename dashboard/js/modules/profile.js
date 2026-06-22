@@ -11,7 +11,22 @@ export async function render(currentUser) {
   try {
     // Load user profile data
     const result = await APIClient.getUserProfile(currentUser.userId);
-    const user = result.data || currentUser;
+    let user = result.data || currentUser;
+
+    // Defensive parsing for corrupt JSON displayName
+    if (user.displayName && typeof user.displayName === 'string' && user.displayName.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(user.displayName);
+        if (parsed.displayName) {
+          user.displayName = parsed.displayName;
+        }
+        if (parsed.whatsapp) {
+          user.whatsapp = parsed.whatsapp;
+        }
+      } catch (e) {
+        console.warn('Failed to parse corrupt user displayName JSON:', e);
+      }
+    }
 
     // Setup form with current data
     const formEditProfile = document.getElementById('form-edit-profile');
@@ -54,10 +69,7 @@ async function handleProfileUpdate(userId) {
       return;
     }
 
-    const result = await APIClient.updateUserProfile(userId, {
-      displayName,
-      whatsapp
-    });
+    const result = await APIClient.updateUserProfile(userId, displayName, whatsapp);
 
     if (result.success) {
       // Update session

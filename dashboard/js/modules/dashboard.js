@@ -7,6 +7,21 @@ import { formatPrice } from '/assets/js/modules/unified-utils.js';
 
 export async function render(currentUser) {
   try {
+    // Update welcome name dynamically
+    let displayName = currentUser.displayName || 'Pelanggan';
+    if (displayName && typeof displayName === 'string' && displayName.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(displayName);
+        if (parsed.displayName) {
+          displayName = parsed.displayName;
+        }
+      } catch (e) {}
+    }
+    const welcomeName = document.getElementById('user-welcome-name');
+    if (welcomeName) {
+      welcomeName.textContent = displayName;
+    }
+
     // Get order statistics from userOrderStats endpoint
     let stats = null;
     try {

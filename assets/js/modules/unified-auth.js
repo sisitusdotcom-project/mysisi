@@ -190,6 +190,17 @@ export class AuthManager {
    * Get current logged-in user
    */
   static getCurrentUser() {
+    if (this.state.user && this.state.user.displayName && typeof this.state.user.displayName === 'string' && this.state.user.displayName.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(this.state.user.displayName);
+        if (parsed.displayName) {
+          this.state.user.displayName = parsed.displayName;
+        }
+        if (parsed.whatsapp) {
+          this.state.user.whatsapp = parsed.whatsapp;
+        }
+      } catch (e) {}
+    }
     return this.state.user;
   }
 
