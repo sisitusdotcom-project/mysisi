@@ -194,39 +194,57 @@ function renderGuestCheckout() {
         <div class="preview-body" style="background: var(--bg-white); border: 1px solid var(--border-light); border-radius: var(--radius); padding: clamp(1rem, 2vw, 1.25rem);">
           ${items.length > 0 ? `
             <div class="preview-items" style="border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; padding-bottom: 0.5rem;">
-              ${items.map(item => `
-                <div class="preview-item" style="align-items: center; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-light); display: flex; justify-content: space-between; gap: 1rem;">
-                  <div style="flex: 1;">
-                    <div class="preview-item-name" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); font-size: 14px;">${item.domain}</div>
-                    <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
-                      <span style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
-                      <span class="preview-item-meta" style="color: var(--text-light); font-size: 11px;">${item.duration || 1} tahun</span>
+              ${items.map(item => {
+                const safeId = item.domain.replace(/\./g, '-');
+                return `
+                  <div class="preview-item-container" style="border-bottom: 1px dashed var(--border-light); padding: 0.75rem 0;">
+                    <div class="preview-item" style="align-items: center; display: flex; justify-content: space-between; gap: 1rem;">
+                      <div onclick="window.togglePreviewDetails('${item.domain}')" style="cursor: pointer; flex: 1; user-select: none;">
+                        <div class="preview-item-name" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                          ${item.domain}
+                          <i class="fas fa-chevron-down" id="chevron-${safeId}" style="font-size: 10px; color: var(--text-light); transition: transform 0.2s;"></i>
+                        </div>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                          <span style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
+                          <span class="preview-item-meta" style="color: var(--text-light); font-size: 11px;">${item.duration || 1} tahun</span>
+                        </div>
+                      </div>
+                      <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                        <div class="preview-item-price" style="font-weight: 700; color: var(--primary-blue); font-family: 'Courier New', monospace;">${formatPrice(item.price * (item.duration || 1))}</div>
+                        <button onclick="window.removeGuestCartItem('${item.domain}')" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 2px 0; display: flex; align-items: center; gap: 4px;">
+                          <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                    <div class="preview-item-price" style="font-weight: 700; color: var(--primary-blue); font-family: 'Courier New', monospace;">${formatPrice(item.price * (item.duration || 1))}</div>
-                    <button onclick="window.removeGuestCartItem('${item.domain}')" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 2px 0; display: flex; align-items: center; gap: 4px;">
-                      <i class="fas fa-trash-alt"></i> Hapus
-                    </button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
 
-            ${addons.length > 0 ? `
-              <div class="preview-addons" style="border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; padding-bottom: 0.5rem;">
-                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin: 0 0 0.5rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Layanan Tambahan</h4>
-                ${addons.map(addon => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 12px;">
-                    <div>
-                      <div style="font-weight: 600; color: var(--text-primary);">${addon.name}</div>
-                      <div style="color: var(--text-light); font-size: 10px;">${addon.duration} tahun</div>
+                    <!-- Collapsible Details -->
+                    <div id="details-${safeId}" style="display: none; padding: 0.75rem 0.75rem; margin-top: 0.5rem; background: var(--bg-light); border-radius: var(--radius); border-left: 3px solid var(--primary-blue);">
+                      <div style="font-size: 12px; color: var(--text-primary);">
+                        <strong>Paket:</strong> <span style="text-transform: uppercase; font-weight: 600; color: var(--primary-blue);">${item.package ? item.package : 'Starter'}</span> (Rp ${formatPrice(item.price)} / tahun)
+                      </div>
+                      <div style="margin-top: 0.5rem;">
+                        <strong style="font-size: 12px; color: var(--text-secondary);">Layanan Tambahan:</strong>
+                        ${addons.length > 0 ? `
+                          <div style="margin-top: 4px;">
+                            ${addons.map(addon => `
+                              <div style="font-size: 11px; margin-top: 2px; color: var(--text-primary); display: flex; justify-content: space-between;">
+                                <span>• ${addon.name}</span>
+                                <span style="font-family: 'Courier New', monospace;">${formatPrice(addon.price)}</span>
+                              </div>
+                            `).join('')}
+                          </div>
+                        ` : '<div style="font-size: 11px; color: var(--text-light); font-style: italic; margin-top: 2px;">Tidak ada layanan tambahan</div>'}
+                      </div>
+                      <div style="margin-top: 0.75rem; text-align: left;">
+                        <a href="/order-summary/?domain=${item.domain}" style="display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: var(--primary-blue); border: 1px solid #bbdefb; padding: 4px 8px; border-radius: 4px; font-size: 11px; text-decoration: none; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                          <i class="fas fa-edit"></i> Edit Paket & Layanan
+                        </a>
+                      </div>
                     </div>
-                    <div style="font-weight: 700; color: var(--primary-blue); font-family: 'Courier New', monospace;">${formatPrice(addon.price)}</div>
                   </div>
-                `).join('')}
-              </div>
-            ` : ''}
+                `;
+              }).join('')}
+            </div>
 
             <!-- Detailed Price Breakdown -->
             <div class="preview-breakdown" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; border-bottom: 2px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
@@ -287,6 +305,20 @@ function renderGuestCheckout() {
   window.removeGuestCartItem = (domain) => {
     CartManager.remove(domain);
     updateCartPreview();
+  };
+
+  // Expose toggle preview details handler
+  window.togglePreviewDetails = (domain) => {
+    const safeId = domain.replace(/\./g, '-');
+    const detailsEl = document.getElementById(`details-${safeId}`);
+    const chevronEl = document.getElementById(`chevron-${safeId}`);
+    if (detailsEl) {
+      const isHidden = detailsEl.style.display === 'none';
+      detailsEl.style.display = isHidden ? 'block' : 'none';
+      if (chevronEl) {
+        chevronEl.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
   };
 }
 

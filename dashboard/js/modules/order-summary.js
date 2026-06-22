@@ -432,6 +432,9 @@ function addToCart() {
       renewalPrice: orderState.price
     });
 
+    // Clear existing addons to handle removals/updates correctly
+    CartManager.clearAddons();
+
     // Add addons to cart
     if (orderState.selectedAddons.length > 0) {
       const addons = orderState.selectedAddons.map(addonId => {
