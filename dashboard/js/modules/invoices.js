@@ -46,9 +46,12 @@ export async function render(currentUser) {
                     <td><strong>${inv.orderId}</strong></td>
                     <td>${inv.domain}</td>
                     <td>${formatPrice(inv.total)}</td>
-                    <td>
+                    <td style="display: flex; gap: 8px;">
+                      <a href="/invoice/?orderId=${inv.orderId}" class="btn btn-sm btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        👁️ Lihat
+                      </a>
                       <button class="btn btn-sm btn-outline" onclick="showInfo('Fitur download PDF sedang dikembangkan')">
-                        📥 Download
+                        📥 PDF
                       </button>
                     </td>
                   </tr>

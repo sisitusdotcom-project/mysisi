@@ -128,7 +128,7 @@ export class DashboardSidebar {
    */
   async updateCartBadge() {
     try {
-      const { CartManager } = await import('../../../assets/js/modules/unified-cart.js');
+      const { CartManager } = await import('/assets/js/modules/unified-cart.js');
       const cartSummary = CartManager.getSummary();
       const badge = document.querySelector('.cart-badge-count');
       

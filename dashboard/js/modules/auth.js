@@ -58,6 +58,14 @@ export class DashboardAuth {
   }
 
   /**
+   * Update current user session
+   * @param {Object} user - Updated user details
+   */
+  static updateSession(user) {
+    AuthManager.updateUser(user);
+  }
+
+  /**
    * Set return-to URL (untuk redirect setelah action tertentu)
    * @param {string} url
    */

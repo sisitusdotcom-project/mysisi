@@ -12,13 +12,13 @@ export class DashboardNavbar {
 
   render() {
     const container = document.getElementById('navbar');
-    const photoURL = this.user?.photoURL || '/assets/img/logo/default-avatar.png';
+    const photoURL = this.user?.photoURL || '/assets/img/avatar-default.svg';
     
     container.innerHTML = `
       <div class="navbar-container">
         <div class="navbar-brand">
           <a href="/" class="navbar-logo">
-            <img src="/assets/img/logo/sisitus-logo.png" alt="SISITUS" class="logo-img">
+            <img src="/assets/img/logo/logo.svg" alt="SISITUS" class="logo-img">
             <span class="logo-text">Dashboard</span>
           </a>
         </div>

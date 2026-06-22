@@ -3,7 +3,7 @@
  */
 
 import APIClient from '/assets/js/modules/unified-api.js';
-import { formatCurrency } from '/assets/js/modules/unified-utils.js';
+import { formatPrice } from '/assets/js/modules/unified-utils.js';
 
 export async function render(currentUser) {
   try {
@@ -77,8 +77,8 @@ function updateStatisticsDisplay(stats) {
   // Update dashboard statistics widgets
   const widgets = {
     'stat-total-orders': stats.totalOrders || 0,
-    'stat-total-spent': stats.totalSpent ? formatCurrency(stats.totalSpent) : 'Rp 0',
-    'stat-average-order': stats.averageOrderValue ? formatCurrency(stats.averageOrderValue) : 'Rp 0',
+    'stat-total-spent': stats.totalSpent ? formatPrice(stats.totalSpent) : 'Rp 0',
+    'stat-average-order': stats.averageOrderValue ? formatPrice(stats.averageOrderValue) : 'Rp 0',
     'stat-active-orders': stats.ordersByStatus?.processing || 0,
     'stat-completed': stats.ordersByStatus?.completed || 0
   };

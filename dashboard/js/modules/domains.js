@@ -11,7 +11,7 @@ export async function render(currentUser) {
   try {
     // Load user orders to get registered domains
     const result = await APIClient.getUserOrders(currentUser.userId);
-    const orders = result.orders || [];
+    const orders = result.data?.orders || result.orders || [];
 
     // Filter completed orders to show as registered domains
     const domains = orders

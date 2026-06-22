@@ -12,7 +12,7 @@
 
 import APIClient from '/assets/js/modules/unified-api.js';
 import { AuthManager } from '/assets/js/modules/unified-auth.js';
-import { formatCurrency, formatDateTime, showError } from '/assets/js/modules/unified-utils.js';
+import { formatPrice, formatDateTime, showError } from '/assets/js/modules/unified-utils.js';
 
 let invoiceData = null;
 let currentUser = null;
@@ -219,7 +219,7 @@ function renderInvoice() {
                 <small style="color: #999;">1 tahun registrasi</small>
               </td>
               <td style="padding: 15px; text-align: center;">1</td>
-              <td style="padding: 15px; text-align: right; font-weight: bold;">Rp ${formatCurrency(299000)}</td>
+              <td style="padding: 15px; text-align: right; font-weight: bold;">${formatPrice(299000)}</td>
             </tr>
             ${renderInvoiceAddons()}
           </tbody>
@@ -231,12 +231,12 @@ function renderInvoice() {
         <div style="width: 100%; max-width: 400px;"> 
           <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; margin-bottom: 10px;">
             <span style="color: #666;">Subtotal:</span>
-            <strong>Rp ${formatCurrency(invoiceData.total || 0)}</strong>
+            <strong>${formatPrice(invoiceData.total || 0)}</strong>
           </div>
 
           <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 16px; font-weight: bold; color: #2563EB;">
             <span>Total:</span>
-            <span>Rp ${formatCurrency(invoiceData.total || 0)}</span>
+            <span>${formatPrice(invoiceData.total || 0)}</span>
           </div>
         </div>
       </div>
@@ -382,7 +382,7 @@ function renderInvoiceAddons() {
             <small style="color: #999;">${addon.duration || 1} tahun</small>
           </td>
           <td style="padding: 15px; text-align: center;">1</td>
-          <td style="padding: 15px; text-align: right; font-weight: bold;">Rp ${formatCurrency(addon.price)}</td>
+          <td style="padding: 15px; text-align: right; font-weight: bold;">${formatPrice(addon.price)}</td>
         </tr>
       `;
     }

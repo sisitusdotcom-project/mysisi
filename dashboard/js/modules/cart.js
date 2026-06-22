@@ -19,7 +19,7 @@
  */
 
 import { CartManager, WishlistManager } from '/assets/js/modules/unified-cart.js';
-import { showSuccess, showError, showInfo, formatCurrency, isValidEmail } from '/assets/js/modules/unified-utils.js';
+import { showSuccess, showError, showInfo, formatPrice, isValidEmail } from '/assets/js/modules/unified-utils.js';
 import APIClient from '/assets/js/modules/unified-api.js';
 import { AuthManager } from '/assets/js/modules/unified-auth.js';
 import SharedAuthForm from '/assets/js/modules/shared-auth-form.js';
@@ -175,13 +175,13 @@ function renderGuestCheckout() {
                       <div class="preview-item-name">${item.domain}</div>
                       <div class="preview-item-meta">${item.duration || 1} tahun</div>
                     </div>
-                    <div class="preview-item-price">Rp ${formatCurrency(item.price * (item.duration || 1))}</div>
+                    <div class="preview-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
                   </div>
                 `).join('')}
               </div>
               <div class="preview-total">
                 <span>Total:</span>
-                <span>Rp ${formatCurrency(summary.total)}</span>
+                <span>${formatPrice(summary.total)}</span>
               </div>
             ` : '<div class="preview-empty">Keranjang kosong</div>'}
           </div>
@@ -426,7 +426,7 @@ function renderAuthenticatedCart() {
                         <div class="addon-name">${addon.name}</div>
                         <div class="addon-desc">${addon.duration} tahun</div>
                       </div>
-                      <div class="addon-price">Rp ${formatCurrency(addon.price)}</div>
+                      <div class="addon-price">${formatPrice(addon.price)}</div>
                     </div>
                   `).join('')}
                 </div>
@@ -441,36 +441,36 @@ function renderAuthenticatedCart() {
               
               <div class="price-row">
                 <span class="price-row-label">Domain (${items.length}):</span>
-                <span class="price-value">Rp ${formatCurrency(subtotal)}</span>
+                <span class="price-value">${formatPrice(subtotal)}</span>
               </div>
 
               ${addonsTotal > 0 ? `
                 <div class="price-row">
                   <span class="price-row-label">Addon (${addons.length}):</span>
-                  <span class="price-value">Rp ${formatCurrency(addonsTotal)}</span>
+                  <span class="price-value">${formatPrice(addonsTotal)}</span>
                 </div>
               ` : ''}
 
               <div class="price-row subtotal">
                 <span class="price-row-label">Subtotal:</span>
-                <span class="price-value">Rp ${formatCurrency(subtotal + addonsTotal)}</span>
+                <span class="price-value">${formatPrice(subtotal + addonsTotal)}</span>
               </div>
 
               <div class="price-row ppn">
                 <span class="price-row-label">PPN (11%):</span>
-                <span class="price-value">Rp ${formatCurrency(ppn)}</span>
+                <span class="price-value">${formatPrice(ppn)}</span>
               </div>
 
               ${promoTotal > 0 ? `
                 <div class="price-row discount">
                   <span class="price-row-label"><i class="fas fa-tag"></i> Diskon Promo:</span>
-                  <span class="price-value">-Rp ${formatCurrency(promoTotal)}</span>
+                  <span class="price-value">-${formatPrice(promoTotal)}</span>
                 </div>
               ` : ''}
 
               <div class="price-row total">
                 <span>Total:</span>
-                <span class="price-value">Rp ${formatCurrency(finalTotal)}</span>
+                <span class="price-value">${formatPrice(finalTotal)}</span>
               </div>
 
               <!-- Promo Code Section -->
@@ -518,7 +518,7 @@ function renderAuthenticatedCart() {
 
 function renderCartItem(item) {
   const renewalInfo = item.renewalPrice && item.renewalPrice !== item.price
-    ? `<div class="cart-item-renewal"><i class="fas fa-sync"></i> Pembaruan: Rp ${formatCurrency(item.renewalPrice)}/tahun</div>`
+    ? `<div class="cart-item-renewal"><i class="fas fa-sync"></i> Pembaruan: ${formatPrice(item.renewalPrice)}/tahun</div>`
     : '';
 
   return `
@@ -532,7 +532,7 @@ function renderCartItem(item) {
         ${renewalInfo}
       </div>
       <div class="cart-item-actions">
-        <div class="cart-item-price">Rp ${formatCurrency(item.price * (item.duration || 1))}</div>
+        <div class="cart-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
         <button onclick="window.removeCartItem('${item.domain}')" class="btn-remove">
           <i class="fas fa-trash"></i> Hapus
         </button>
