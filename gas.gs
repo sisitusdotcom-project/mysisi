@@ -913,7 +913,7 @@ function generateMidtransToken(orderId, email, phone, name, domain, packageId, t
     Logger.log('Midtrans API Response: ' + responseText);
 
     // Handle response
-    if (responseCode !== 200) {
+    if (responseCode !== 200 && responseCode !== 201) {
       Logger.log('ERROR: Midtrans API returned error code ' + responseCode);
       let errorMessage = 'Gagal membuat token pembayaran';
       try {
