@@ -170,12 +170,17 @@ function renderGuestCheckout() {
             ${items.length > 0 ? `
               <div class="preview-items">
                 ${items.map(item => `
-                  <div class="preview-item">
-                    <div>
+                  <div class="preview-item" style="align-items: center;">
+                    <div style="flex: 1;">
                       <div class="preview-item-name">${item.domain}</div>
                       <div class="preview-item-meta">${item.duration || 1} tahun</div>
                     </div>
-                    <div class="preview-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                      <div class="preview-item-price">${formatPrice(item.price * (item.duration || 1))}</div>
+                      <button onclick="window.removeGuestCartItem('${item.domain}', this)" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 2px 0; display: flex; align-items: center; gap: 4px;">
+                        <i class="fas fa-trash-alt"></i> Hapus
+                      </button>
+                    </div>
                   </div>
                 `).join('')}
               </div>
@@ -209,6 +214,32 @@ function renderGuestCheckout() {
 
   // Add GiveNamespace handlers
   window.handleGoogleSignIn = handleGoogleSignIn;
+
+  // Expose guest cart item remover that updates DOM dynamically without losing form inputs
+  window.removeGuestCartItem = (domain, btn) => {
+    CartManager.remove(domain);
+    
+    // Find the item container and remove it
+    const itemElement = btn.closest('.preview-item');
+    if (itemElement) {
+      itemElement.remove();
+    }
+    
+    // Update the total price
+    const updatedSummary = CartManager.getSummary();
+    const totalElement = document.querySelector('.preview-total span:last-child');
+    if (totalElement) {
+      totalElement.textContent = formatPrice(updatedSummary.total);
+    }
+    
+    // If cart is now empty, render empty state
+    if (CartManager.isEmpty()) {
+      const previewBody = document.querySelector('.preview-body');
+      if (previewBody) {
+        previewBody.innerHTML = '<div class="preview-empty">Keranjang kosong</div>';
+      }
+    }
+  };
 }
 
 /**
