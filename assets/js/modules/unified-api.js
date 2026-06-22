@@ -351,7 +351,7 @@ export class APIClient {
    * Check domain availability
    */
   static checkDomain(domain) {
-    return this.call('checkDomain', { domain });
+    return this.call('checkDomain', { domain }, { method: 'POST' });
   }
 
   /**
