@@ -934,3 +934,97 @@
     font-size: 0.875rem;
   }
 }
+
+/* ========== PAGE SPECIFIC HERO BACKGROUNDS ========== */
+.hero-blog {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-blog.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-domain-hosting {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-domain-hosting.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-kontak {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-kontak.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-layanan {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-layanan.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-legal {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-legal.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-maintenance {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-maintenance.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-pembuatan-web {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-pembuatan-web.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-perusahaan {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-perusahaan.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-promo {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-promo.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-tentang {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-tentang.webp');
+  background-size: cover;
+  background-position: center;
+}
+.hero-tips {
+  background-image: url('/assets/img/banner/banner-dekstop/banner-tips.webp');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Mobile responsive background swap */
+@media (max-width: 768px) {
+  .hero-blog {
+    background-image: url('/assets/img/banner/banner-mobile/banner-blog.webp');
+  }
+  .hero-domain-hosting {
+    background-image: url('/assets/img/banner/banner-mobile/banner-domain-hosting.webp');
+  }
+  .hero-kontak {
+    background-image: url('/assets/img/banner/banner-mobile/banner-kontak.webp');
+  }
+  .hero-layanan {
+    background-image: url('/assets/img/banner/banner-mobile/banner-layanan.webp');
+  }
+  .hero-legal {
+    background-image: url('/assets/img/banner/banner-mobile/banner-legal.webp');
+  }
+  .hero-maintenance {
+    background-image: url('/assets/img/banner/banner-mobile/banner-maintenance.webp');
+  }
+  .hero-pembuatan-web {
+    background-image: url('/assets/img/banner/banner-mobile/banner-pembuatan-web.webp');
+  }
+  .hero-perusahaan {
+    background-image: url('/assets/img/banner/banner-mobile/banner-perusahaan.webp');
+  }
+  .hero-promo {
+    background-image: url('/assets/img/banner/banner-mobile/banner-promo.webp');
+  }
+  .hero-tentang {
+    background-image: url('/assets/img/banner/banner-mobile/banner-tentang.webp');
+  }
+  .hero-tips {
+    background-image: url('/assets/img/banner/banner-mobile/banner-tips.webp');
+  }
+}

@@ -16,8 +16,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
-<body>
-    <div id="cart-container" class="page-container"></div>
+<body class="checkout-page-body">
+    <!-- Header Navigation -->
+    <header class="checkout-header">
+        <div class="checkout-header-container">
+            <a href="/" class="checkout-brand">
+                <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo" class="checkout-logo-img">
+                <span class="checkout-logo-text">SISITUS</span>
+            </a>
+            <a href="/" class="btn-back-home">
+                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+        </div>
+    </header>
+
+    <div id="cart-container" class="page-container" style="padding-top: 40px;"></div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

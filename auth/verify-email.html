@@ -7,143 +7,113 @@
   <title>Verifikasi Email - SISITUS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="/assets/favicon/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components/auth.css">
+  <!-- SweetAlert2 for Elegant Notifications -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+</head>
+<body class="auth-page-body">
+
+  <div class="auth-split-wrapper">
+    <!-- Left Visual Panel (Desktop only) -->
+    <div class="auth-visual-panel">
+      <a href="/" class="back-home-link-visual">
+        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+      </a>
+      
+      <div class="auth-visual-content">
+        <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo" class="auth-visual-logo">
+        <h1 class="auth-visual-title">Verifikasi Akun SISITUS</h1>
+        <p class="auth-visual-subtitle">Langkah terakhir untuk mengamankan akun Anda dan mulai mengelola domain & hosting terbaik.</p>
+        
+        <div class="auth-features-list">
+          <div class="auth-feature-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Verifikasi email otomatis aman.</span>
+          </div>
+          <div class="auth-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Akses langsung ke seluruh dashboard.</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="auth-visual-footer">
+        &copy; 2026 SISITUS. All rights reserved.
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+      <!-- Back link -->
+      <a href="/" class="back-home-link-form">
+        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+      </a>
+
+      <!-- Mobile brand logo (visible on mobile only) -->
+      <div class="auth-mobile-logo">
+        <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo">
+        <span>SISITUS</span>
+      </div>
+
+      <div class="auth-panel-content">
+        <div id="status-content">
+          <!-- Content will be inserted here by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .container {
-      max-width: 500px;
-      width: 100%;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .logo {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #667eea;
-      margin-bottom: 1.5rem;
-    }
-
-    h2 {
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-      font-size: 1.5rem;
-    }
-
-    p {
-      color: #7f8c8d;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
     .status-icon {
       font-size: 3rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
-
     .spinner {
       display: inline-block;
       height: 40px;
       width: 40px;
       border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
+      border-top: 4px solid var(--auth-primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
     .success-message {
-      color: #27ae60;
+      color: #059669;
     }
-
     .error-message {
-      color: #c0392b;
+      color: #dc2626;
     }
-
+    .info-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--auth-primary);
+      padding: 15px;
+      margin: 20px 0;
+      text-align: left;
+      border-radius: 6px;
+      font-size: 13px;
+      border: 1px solid #e2e8f0;
+      border-left-width: 4px;
+    }
+    .info-box strong {
+      color: var(--auth-primary);
+    }
     .button-group {
-      margin-top: 2rem;
+      margin-top: 25px;
       display: flex;
-      gap: 1rem;
+      gap: 10px;
       flex-direction: column;
     }
-
-    a, button {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-      font-size: 1rem;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-secondary {
-      background: #ecf0f1;
-      color: #2c3e50;
-    }
-
-    .btn-secondary:hover {
-      background: #bdc3c7;
-    }
-
-    .info-box {
-      background: #ecf0f1;
-      border-left: 4px solid #667eea;
-      padding: 1rem;
-      margin: 1rem 0;
-      text-align: left;
-      border-radius: 4px;
-    }
-
-    .info-box strong {
-      color: #667eea;
+    .button-group a {
+      width: 100%;
+      text-align: center;
     }
   </style>
-  <!-- SweetAlert2 for Elegant Notifications -->
-  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <div class="logo">SISITUS</div>
-    
-    <div id="status-content">
-      <!-- Content will be inserted here by JavaScript -->
-    </div>
-  </div>
 
   <script type="module">
     import { GAS_CONFIG } from '/assets/js/config/api.config.js';
@@ -176,34 +146,34 @@
 
     function showInfo(title, message) {
       statusContent.innerHTML = `
-        <div class="status-icon" style="color: #3498db; font-size: 3rem;">
-          <i class="fas fa-envelope"></i>
+        <div class="status-icon" style="color: var(--auth-primary);">
+          <i class="fas fa-envelope-open-text"></i>
         </div>
-        <h2 style="color: #3498db;">${title}</h2>
-        <p>${message}</p>
+        <h2 style="color: var(--auth-primary); font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">${title}</h2>
+        <p style="color: var(--auth-text-light); font-size: 0.95rem; line-height: 1.5;">${message}</p>
         <div class="info-box">
           <strong><i class="fas fa-lightbulb"></i> Tips:</strong><br>
           Jika email tidak terlihat, cek folder:
-          <ul style="margin-top: 10px; text-align: left; list-style: inside;">
+          <ul style="margin-top: 8px; text-align: left; list-style: inside; padding-left: 5px;">
             <li><strong>Spam/Junk</strong> - Pindahkan ke Inbox</li>
-            <li><strong>Promotions/Tab lain</strong> - Cek semua tab di email</li>
+            <li><strong>Promotions/Tab lain</strong> - Cek semua tab</li>
           </ul>
         </div>
         <div class="button-group">
-          <a href="/auth/" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Kembali ke Login</a>
-          <a href="/" class="btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
+          <a href="/auth/" class="btn btn-secondary"><i class="fas fa-sign-in-alt"></i> Kembali ke Login</a>
+          <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
         </div>
       `;
     }
 
     function showLoading(title, message) {
       statusContent.innerHTML = `
-        <h2>${title}</h2>
-        <p>${message}</p>
-        <div style="margin: 2rem 0;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--auth-text-dark);">${title}</h2>
+        <p style="color: var(--auth-text-light); font-size: 0.95rem;">${message}</p>
+        <div style="margin: 30px 0;">
           <div class="spinner"></div>
         </div>
-        <p style="color: #999; font-size: 12px; margin-top: 20px;">
+        <p style="color: var(--auth-text-light); font-size: 12px;">
           <i class="fas fa-info-circle"></i> Sistem sedang memverifikasi email Anda. Mohon tunggu...
         </p>
       `;
@@ -214,8 +184,8 @@
       const hasCartItems = cartSummary.domains && cartSummary.domains.length > 0;
       
       const primaryBtn = hasCartItems 
-        ? '<a href="/cart/" class="btn-primary"><i class="fas fa-shopping-cart"></i> Lanjutkan Pembayaran</a>'
-        : '<a href="/dashboard/" class="btn-primary"><i class="fas fa-chart-line"></i> Buka Dashboard</a>';
+        ? '<a href="/cart/" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Lanjutkan Pembayaran</a>'
+        : '<a href="/dashboard/" class="btn btn-primary"><i class="fas fa-chart-line"></i> Buka Dashboard</a>';
         
       const redirectMsg = hasCartItems
         ? 'Halaman akan otomatis diarahkan ke keranjang belanja dalam 2 detik...'
@@ -223,8 +193,8 @@
 
       statusContent.innerHTML = `
         <div class="status-icon success-message"><i class="fas fa-check-circle"></i></div>
-        <h2 class="success-message">${title}</h2>
-        <p>${message}</p>
+        <h2 class="success-message" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">${title}</h2>
+        <p style="color: var(--auth-text-light); font-size: 0.95rem; line-height: 1.5;">${message}</p>
         <div class="info-box">
           <strong><i class="fas fa-info-circle"></i> Anda sekarang dapat:</strong><br>
           ${hasCartItems 
@@ -233,24 +203,24 @@
         </div>
         <div class="button-group">
           ${primaryBtn}
-          <a href="/" class="btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
+          <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
         </div>
-        <p style="color: #999; font-size: 12px; margin-top: 20px;">${redirectMsg}</p>
+        <p style="color: var(--auth-text-light); font-size: 11px; margin-top: 20px;">${redirectMsg}</p>
       `;
     }
 
     function showError(title, message) {
       statusContent.innerHTML = `
         <div class="status-icon error-message"><i class="fas fa-times-circle"></i></div>
-        <h2 class="error-message">${title}</h2>
-        <p>${message}</p>
+        <h2 class="error-message" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">${title}</h2>
+        <p style="color: var(--auth-text-light); font-size: 0.95rem; line-height: 1.5;">${message}</p>
         <div class="info-box">
           <strong><i class="fas fa-lightbulb"></i> Solusi:</strong><br>
           Cek email Anda kembali dan gunakan link verifikasi terbaru. Jika sudah tidak dapat ditemukan, silakan daftar ulang.
         </div>
         <div class="button-group">
-          <a href="/checkout" class="btn-primary"><i class="fas fa-user-plus"></i> Daftar Ulang</a>
-          <a href="/" class="btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
+          <a href="/checkout" class="btn btn-primary"><i class="fas fa-user-plus"></i> Daftar Ulang</a>
+          <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</a>
         </div>
       `;
     }
@@ -298,7 +268,7 @@
           const hasCartItems = cartSummary.domains && cartSummary.domains.length > 0;
 
           showSuccess(
-            '<i class="fas fa-check"></i> Email Berhasil Diverifikasi!',
+            'Email Berhasil Diverifikasi!',
             hasCartItems 
               ? 'Akun Anda sudah aktif. Anda akan diarahkan kembali ke keranjang belanja...'
               : 'Akun Anda sudah aktif. Anda akan diarahkan ke dashboard Anda...'
@@ -314,12 +284,12 @@
           }, 2000);
         } else {
           showError(
-            '<i class="fas fa-exclamation-triangle"></i> Verifikasi Gagal',
+            'Verifikasi Gagal',
             data.message || 'Token verifikasi tidak valid atau sudah kadaluarsa. Link verifikasi berlaku 24 jam.'
           );
         }
       } catch (error) {
-        let errorTitle = '<i class="fas fa-exclamation-circle"></i> Terjadi Kesalahan';
+        let errorTitle = 'Terjadi Kesalahan';
         let errorMsg = 'Tidak dapat terhubung ke server. Silakan coba lagi nanti.';
         
         if (error.name === 'AbortError') {

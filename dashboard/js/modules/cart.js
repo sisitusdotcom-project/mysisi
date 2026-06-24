@@ -200,7 +200,9 @@ function renderGuestCheckout() {
                       <div onclick="window.togglePreviewDetails('${item.domain}')" style="cursor: pointer; flex: 1; user-select: none;">
                         <div class="preview-item-name" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); font-size: 14px; display: flex; align-items: center; gap: 6px;">
                           ${item.domain}
-                          <i class="fas fa-chevron-down" id="chevron-${safeId}" style="font-size: 10px; color: var(--text-light); transition: transform 0.2s;"></i>
+                          <span class="btn-cart-detail" style="font-family: var(--font-primary), sans-serif; font-size: 11px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; margin-left: 6px;">
+                            Detail <i class="fas fa-chevron-down" id="chevron-${safeId}" style="font-size: 8px; transition: transform 0.2s;"></i>
+                          </span>
                         </div>
                         <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
                           <span style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>
@@ -671,7 +673,9 @@ function renderCartItem(item) {
         <div onclick="window.toggleCartItemDetails('${item.domain}')" style="cursor: pointer; flex: 1; user-select: none;">
           <h4 class="cart-item-domain" style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); margin: 0; font-size: 16px; display: flex; align-items: center; gap: 6px;">
             ${item.domain}
-            <i class="fas fa-chevron-down" id="auth-chevron-${safeId}" style="font-size: 11px; color: var(--text-light); transition: transform 0.2s;"></i>
+            <span class="btn-cart-detail" style="font-family: var(--font-primary), sans-serif; font-size: 11px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2.5px 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; margin-left: 6px;">
+              Detail <i class="fas fa-chevron-down" id="auth-chevron-${safeId}" style="font-size: 8px; transition: transform 0.2s;"></i>
+            </span>
           </h4>
           <div class="cart-item-details" style="display: flex; gap: 8px; align-items: center; margin-top: 6px; border: none; padding: 0;">
             <span class="cart-item-badge" style="background: #e3f2fd; color: var(--primary-blue); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${item.package ? item.package.toUpperCase() : 'STARTER'}</span>

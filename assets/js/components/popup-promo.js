@@ -256,7 +256,11 @@ class PopupPromo {
 
 // Auto-initialize on page load
 window.addEventListener('load', () => {
-  // Prevent duplicate initialization
+  // Prevent duplicate initialization and check current path
+  const currentPath = window.location.pathname;
+  const isAuthOrDashboard = currentPath.includes('/auth') || currentPath.includes('/dashboard');
+  if (isAuthOrDashboard) return;
+
   if (!document.getElementById('popup-promo-overlay')) {
     const popupPromo = new PopupPromo({
       storageKey: 'sisitus_popup_promo_shown',

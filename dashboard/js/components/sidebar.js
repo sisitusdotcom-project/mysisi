@@ -15,19 +15,19 @@ export class DashboardSidebar {
     const menuItems = [
       {
         id: 'dashboard',
-        icon: 'icon-home',
+        icon: 'fas fa-th-large',
         label: 'Dashboard',
         route: '/dashboard/'
       },
       {
         id: 'profile',
-        icon: 'icon-user',
-        label: 'Profil',
+        icon: 'fas fa-user-cog',
+        label: 'Profil Saya',
         route: '/dashboard/profile'
       },
       {
         id: 'cart',
-        icon: 'icon-basket',
+        icon: 'fas fa-shopping-cart',
         label: 'Keranjang',
         route: '/cart/',
         isExternal: true,
@@ -35,48 +35,51 @@ export class DashboardSidebar {
       },
       {
         id: 'wishlist',
-        icon: 'icon-heart',
-        label: 'Wishlist',
+        icon: 'fas fa-heart',
+        label: 'Wishlist Saya',
         route: '/dashboard/wishlist'
       },
       {
         id: 'orders',
-        icon: 'icon-bag',
+        icon: 'fas fa-shopping-bag',
         label: 'Pesanan',
         route: '/dashboard/orders'
       },
-
       {
         id: 'invoices',
-        icon: 'icon-doc',
+        icon: 'fas fa-file-invoice-dollar',
         label: 'Invoice',
         route: '/dashboard/invoices',
         badge: ''
       },
       {
         id: 'domains',
-        icon: 'icon-globe',
+        icon: 'fas fa-globe',
         label: 'Domain Saya',
         route: '/dashboard/domains'
       },
       {
         id: 'support',
-        icon: 'icon-headphones',
+        icon: 'fas fa-headset',
         label: 'Support',
         route: '/dashboard/support'
       }
     ];
 
     container.innerHTML = `
-      <div class="sidebar-header">
-        <h2>Menu</h2>
+      <div class="sidebar-brand-container">
+        <a href="/" class="sidebar-logo">
+          <img src="/assets/img/logo/logo.svg" alt="SISITUS" class="sidebar-logo-img">
+          <span class="sidebar-logo-text">SISITUS</span>
+        </a>
       </div>
+      
+      <div class="sidebar-menu-header">MENU UTAMA</div>
       
       <nav class="sidebar-menu">
         ${menuItems.map(item => {
           let badge = '';
           if (item.badge === 'cart-badge') {
-            // Will be updated dynamically
             badge = '<span class="menu-badge cart-badge-count" style="display: none;">0</span>';
           } else if (item.badge) {
             badge = `<span class="menu-badge">${item.badge}</span>`;

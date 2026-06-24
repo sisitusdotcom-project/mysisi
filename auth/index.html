@@ -19,23 +19,55 @@
   <!-- Google Sign-In -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <nav class="navbar">
-        <div class="logo">
-          <a href="/">SISITUS</a>
-        </div>
-        <a href="/" class="back-home-btn">
-          <i class="fas fa-arrow-left"></i> Kembali ke Beranda
-        </a>
-      </nav>
-    </div>
-  </header>
+<body class="auth-page-body">
 
-  <main class="auth-page">
-    <div class="container">
-      <div class="auth-wrapper">
+  <div class="auth-split-wrapper">
+    <!-- Left Visual Panel (Desktop only) -->
+    <div class="auth-visual-panel">
+      <a href="/" class="back-home-link-visual">
+        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+      </a>
+      
+      <div class="auth-visual-content">
+        <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo" class="auth-visual-logo">
+        <h1 class="auth-visual-title">Solusi Kebutuhan Website & Domain Terbaik</h1>
+        <p class="auth-visual-subtitle">Kelola semua layanan digital Anda dalam satu dashboard terintegrasi yang andal, aman, dan cepat.</p>
+        
+        <div class="auth-features-list">
+          <div class="auth-feature-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Keamanan data tingkat tinggi terjamin.</span>
+          </div>
+          <div class="auth-feature-item">
+            <i class="fas fa-clock"></i>
+            <span>Akses instan 24/7 untuk semua layanan Anda.</span>
+          </div>
+          <div class="auth-feature-item">
+            <i class="fas fa-circle-check"></i>
+            <span>Proses pendaftaran domain & hosting otomatis.</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="auth-visual-footer">
+        &copy; 2026 SISITUS. All rights reserved.
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+      <!-- Back to Home link on mobile/desktop form panel -->
+      <a href="/" class="back-home-link-form">
+        <i class="fas fa-arrow-left"></i> Kembali
+      </a>
+
+      <!-- Mobile brand logo (visible on mobile only) -->
+      <div class="auth-mobile-logo">
+        <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo">
+        <span>SISITUS</span>
+      </div>
+
+      <div class="auth-panel-content">
         <!-- Logged-In Profile Section (Hidden by default) -->
         <div id="auth-loggedin-section" class="auth-loggedin-section" style="display: none;">
           <div class="loggedin-profile">
@@ -52,7 +84,7 @@
                 <h3 id="loggedin-name" class="profile-name">--</h3>
                 <p id="loggedin-email" class="profile-email">--</p>
                 <p class="profile-label">
-                  <i class="fas fa-check-circle" style="color: #27ae60;"></i> 
+                  <i class="fas fa-check-circle" style="color: #059669;"></i> 
                   Email Terverifikasi
                 </p>
               </div>
@@ -62,10 +94,10 @@
               <a href="/dashboard/" class="btn btn-primary" style="width: 100%;">
                 <i class="fas fa-chart-line"></i> Ke Dashboard
               </a>
-              <a href="/dashboard/profile/" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">
+              <a href="/dashboard/#!/dashboard/profile" class="btn btn-secondary" style="width: 100%;">
                 <i class="fas fa-user-cog"></i> Edit Profil
               </a>
-              <button class="btn btn-outline" id="loggedin-logout-btn" style="width: 100%; margin-top: 10px;">
+              <button class="btn btn-outline" id="loggedin-logout-btn" style="width: 100%;">
                 <i class="fas fa-sign-out-alt"></i> Logout
               </button>
             </div>
@@ -74,7 +106,11 @@
 
         <!-- Auth Forms Section (Shown when not logged in) -->
         <div id="auth-forms-section" class="auth-forms-section">
-        <div class="auth-container">
+          <div class="auth-header">
+            <h2>Selamat Datang</h2>
+            <p>Silakan masuk atau daftarkan akun baru Anda.</p>
+          </div>
+
           <!-- Auth Tabs -->
           <div class="auth-tabs">
             <button class="tab-btn active" data-tab="register">Buat Akun Baru</button>
@@ -148,7 +184,7 @@
           <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
 
           <!-- Privacy Notice -->
-          <div class="auth-privacy">
+          <div class="auth-privacy" style="margin-top: 20px;">
             <p>
               Dengan membuat akun, Anda setuju dengan 
               <a href="/perusahaan/legal/" target="_blank">Ketentuan Layanan</a> dan 
@@ -156,21 +192,9 @@
             </p>
           </div>
         </div>
-        </div>
-
-        <!-- Info Box -->
-        <div class="auth-info-box">
-          <h3><i class="fas fa-shield-alt"></i> Keamanan Akun Anda</h3>
-          <ul>
-            <li><i class="fas fa-check-circle"></i> Enkripsi data end-to-end</li>
-            <li><i class="fas fa-check-circle"></i> Verifikasi email otomatis</li>
-            <li><i class="fas fa-check-circle"></i> Dukungan Google Sign-In</li>
-            <li><i class="fas fa-check-circle"></i> Proteksi password dengan bcrypt</li>
-          </ul>
-        </div>
       </div>
     </div>
-  </main>
+  </div>
 
   <script src="/assets/js/main.js" type="module"></script>
   <script type="module" src="/assets/js/pages/auth.js"></script>

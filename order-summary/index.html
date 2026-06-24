@@ -12,11 +12,25 @@
     <!-- Styles -->
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/order-summary/styles.css">
+    <link rel="stylesheet" href="/assets/css/components/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
-<body>
-    <div id="order-summary-container" class="page-container">
+<body class="checkout-page-body">
+    <!-- Header Navigation -->
+    <header class="checkout-header">
+        <div class="checkout-header-container">
+            <a href="/" class="checkout-brand">
+                <img src="/assets/img/logo/logo.svg" alt="SISITUS Logo" class="checkout-logo-img">
+                <span class="checkout-logo-text">SISITUS</span>
+            </a>
+            <a href="/" class="btn-back-home">
+                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+        </div>
+    </header>
+
+    <div id="order-summary-container" class="page-container" style="padding-top: 40px;">
         <!-- Loading State -->
         <div id="loading-state">
             <div class="spinner"></div>
