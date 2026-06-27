@@ -108,19 +108,19 @@ class DashboardApp {
       '/dashboard/cart': {
         page: 'cart',
         title: 'Keranjang Belanja',
-        requiresAuth: false,
+        requiresAuth: true,
         loadModule: () => import('./modules/cart.js')
       },
       '/dashboard/keranjang': {
         page: 'cart',
         title: 'Keranjang Saya',
-        requiresAuth: false,
+        requiresAuth: true,
         loadModule: () => import('./modules/cart.js')
       },
       '/dashboard/keranjang-saya': {
         page: 'cart',
         title: 'Keranjang Saya',
-        requiresAuth: false,
+        requiresAuth: true,
         loadModule: () => import('./modules/cart.js')
       }
     };

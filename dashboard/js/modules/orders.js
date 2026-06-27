@@ -35,7 +35,7 @@ export async function render(user) {
             <td>${order.domain}</td>
             <td>${order.packageId ? (order.packageId.charAt(0).toUpperCase() + order.packageId.slice(1)) : 'Starter'}</td>
             <td>${formatPrice(order.total)}</td>
-            <td><span class="badge badge-${getStatusClass(order.paymentStatus)}">${getStatusText(order.paymentStatus)}</span></td>
+            <td id="status-${order.orderId}"><span class="badge badge-${getStatusClass(order.paymentStatus)}">${getStatusText(order.paymentStatus)}</span></td>
             <td>${formatDateTime(order.createdAt)}</td>
           </tr>
         `).join('');
@@ -47,6 +47,12 @@ export async function render(user) {
             showOrderDetail(orderId);
           });
         });
+
+        // Auto-sync pending orders in the background
+        const pendingOrders = orders.filter(o => o.paymentStatus === 'pending');
+        if (pendingOrders.length > 0) {
+          syncPendingOrders(pendingOrders);
+        }
       }
     }
 
@@ -57,6 +63,27 @@ export async function render(user) {
         ${error.message}
       </div>
     `;
+  }
+}
+
+async function syncPendingOrders(pendingOrders) {
+  for (const order of pendingOrders) {
+    try {
+      const syncResult = await APIClient.syncOrderStatus(order.orderId);
+      
+      // If the status has changed, update the UI
+      if (syncResult.success && syncResult.data && syncResult.data.newStatus) {
+        const newStatus = syncResult.data.newStatus;
+        const statusTd = document.getElementById(`status-${order.orderId}`);
+        
+        if (statusTd) {
+          // Update the badge with a subtle animation
+          statusTd.innerHTML = `<span class="badge badge-${getStatusClass(newStatus)}" style="animation: fadeIn 0.5s;">${getStatusText(newStatus)}</span>`;
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to sync order ${order.orderId}:`, error);
+    }
   }
 }
 
@@ -150,7 +177,7 @@ async function showOrderDetail(orderId) {
         </div>
 
         <div class="modal-footer">
-          ${order.paymentStatus !== 'paid' ? `
+          ${order.paymentStatus === 'pending' ? `
             <button class="btn btn-primary" onclick="window.location.hash='#!payment?orderId=${order.orderId}'">
               💳 Lanjut Pembayaran
             </button>

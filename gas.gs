@@ -1227,7 +1227,7 @@ function getOrderDetail(orderId, userId) {
       return buildResponse(false, null, 'Order ID diperlukan', 'MISSING_ORDER_ID');
     }
 
-    const result = getOrder(orderId);
+    let result = getOrder(orderId);
     
     if (!result.success) {
       return result;
@@ -1235,6 +1235,15 @@ function getOrderDetail(orderId, userId) {
 
     if (userId && result.data.userId !== userId) {
       return buildResponse(false, null, 'Anda tidak memiliki akses ke order ini', 'UNAUTHORIZED');
+    }
+
+    // Auto-sync with Midtrans if payment is pending
+    if (result.data.paymentStatus === 'pending') {
+      const sync = syncOrderStatusWithMidtrans(orderId);
+      // If sync changed the status, re-fetch the fresh order data
+      if (sync.success && sync.data && sync.data.newStatus) {
+        result = getOrder(orderId);
+      }
     }
 
     return result;
@@ -1276,6 +1285,108 @@ function updateOrderStatus(orderId, newStatus) {
     return buildResponse(false, null, 'Order tidak ditemukan', 'ORDER_NOT_FOUND');
   } catch (error) {
     Logger.log('Error in updateOrderStatus: ' + error);
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+/**
+ * SYNC ORDER STATUS WITH MIDTRANS - Direct API check
+ */
+function syncOrderStatusWithMidtrans(orderId) {
+  try {
+    if (!orderId) {
+      return buildResponse(false, null, 'Order ID diperlukan', 'MISSING_ORDER_ID');
+    }
+
+    const serverKey = PropertiesService.getScriptProperties().getProperty('MIDTRANS_SERVER_KEY');
+    if (!serverKey) {
+      return buildResponse(false, null, 'Server Key tidak dikonfigurasi', 'SERVER_KEY_MISSING');
+    }
+
+    // Midtrans API Sandbox Base URL (Update to production URL when going live)
+    const baseUrl = 'https://api.sandbox.midtrans.com/v2';
+    const url = `${baseUrl}/${orderId}/status`;
+
+    const options = {
+      method: 'get',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Utilities.base64Encode(serverKey + ':')
+      },
+      muteHttpExceptions: true
+    };
+
+    const response = UrlFetchApp.fetch(url, options);
+    const responseCode = response.getResponseCode();
+    
+    // 404 means the transaction does not exist in Midtrans (not processed yet)
+    if (responseCode === 404) {
+      return buildResponse(false, null, 'Transaksi belum terdaftar di Midtrans', 'TRANSACTION_NOT_FOUND');
+    }
+
+    const data = JSON.parse(response.getContentText());
+
+    if (responseCode !== 200 || !data.transaction_status) {
+      return buildResponse(false, data, 'Gagal mengambil status dari Midtrans', 'API_ERROR');
+    }
+
+    const transactionStatus = data.transaction_status;
+    
+    // Map transaction status to payment status and order status
+    let paymentStatus = 'pending';
+    let orderStatus = 'processing';
+
+    switch (transactionStatus) {
+      case 'capture':
+      case 'settlement':
+        paymentStatus = 'paid';
+        orderStatus = 'completed';
+        break;
+      case 'pending':
+        paymentStatus = 'pending';
+        orderStatus = 'processing';
+        break;
+      case 'deny':
+      case 'cancel':
+      case 'expire':
+      case 'failure':
+        paymentStatus = 'expired';
+        orderStatus = 'cancelled';
+        break;
+      default:
+        paymentStatus = transactionStatus;
+    }
+
+    const sheet = ensureOrdersSheet();
+    const sheetData = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < sheetData.length; i++) {
+      if (sheetData[i][0] === orderId) {
+        const currentPaymentStatus = sheetData[i][9]; // Column J
+        
+        if (currentPaymentStatus !== paymentStatus) {
+           sheet.getRange(i + 1, 9).setValue(orderStatus);      // Column I
+           sheet.getRange(i + 1, 10).setValue(paymentStatus);   // Column J
+           sheet.getRange(i + 1, 14).setValue(new Date().toISOString()); // Updated At
+           
+           if (data.transaction_id) {
+             sheet.getRange(i + 1, 12).setValue(data.transaction_id); // Column L
+           }
+           if (data.payment_type) {
+             sheet.getRange(i + 1, 15).setValue(data.payment_type); // Column O
+           }
+           
+           return buildResponse(true, { orderId, newStatus: paymentStatus, oldStatus: currentPaymentStatus }, 'Status disinkronisasi dengan Midtrans');
+        } else {
+           return buildResponse(true, { orderId, currentStatus: paymentStatus }, 'Status sudah up to date');
+        }
+      }
+    }
+
+    return buildResponse(false, null, 'Order tidak ditemukan di database', 'ORDER_NOT_FOUND');
+  } catch (error) {
+    Logger.log('Error in syncOrderStatusWithMidtrans: ' + error);
     return buildResponse(false, null, error.toString(), 'ERROR');
   }
 }
@@ -1336,7 +1447,7 @@ function getUserOrderStats(userId) {
 }
 
 /**
- * CHECK DOMAIN - Check domain availability (placeholder)
+ * CHECK DOMAIN - Check domain availability based on real spreadsheet data
  */
 function checkDomain(domain) {
   try {
@@ -1344,13 +1455,30 @@ function checkDomain(domain) {
       return buildResponse(false, null, 'Domain diperlukan', 'MISSING_DOMAIN');
     }
 
-    // TODO: Integrate with registrar API
-    const available = Math.random() > 0.3;
+    const sheet = ensureOrdersSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    // Check if domain is already ordered and not cancelled/expired
+    let isOrdered = false;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][5] && data[i][5].toLowerCase() === domain.toLowerCase()) {
+        const orderStatus = data[i][8] ? data[i][8].toLowerCase() : '';
+        const paymentStatus = data[i][9] ? data[i][9].toLowerCase() : '';
+        
+        // If order is not explicitly cancelled or expired, it's considered taken (rebutan/pending/active)
+        if (orderStatus !== 'cancelled' && paymentStatus !== 'expire' && paymentStatus !== 'cancel' && paymentStatus !== 'deny' && paymentStatus !== 'failure') {
+          isOrdered = true;
+          break;
+        }
+      }
+    }
+
+    const available = !isOrdered;
 
     return buildResponse(true, {
       domain: domain,
       available: available
-    }, available ? 'Domain tersedia' : 'Domain tidak tersedia');
+    }, available ? 'Domain tersedia' : 'Domain sedang dipesan atau sudah aktif');
   } catch (error) {
     Logger.log('Error in checkDomain: ' + error);
     return buildResponse(false, null, error.toString(), 'ERROR');
@@ -2149,6 +2277,8 @@ function doPost(e) {
         return respondJson(getOrderDetail(params.orderId, params.userId));
       case 'updateorderstatus':
         return respondJson(updateOrderStatus(params.orderId, params.status));
+      case 'syncorderstatus':
+        return respondJson(syncOrderStatusWithMidtrans(params.orderId));
       case 'getuserorderstats':
         return respondJson(getUserOrderStats(params.userId));
       case 'createorderwithauth':

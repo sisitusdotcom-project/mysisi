@@ -390,6 +390,15 @@ async function handleAuthSuccess(userData) {
     cartState.userEmail = userData?.email;
     cartState.emailVerified = userData?.emailVerified || false;
 
+    // IMPORTANT: Redirect to verification page if email is not verified
+    if (!cartState.emailVerified) {
+      showSuccess('✓ Akun Dibuat!', 'Mengarahkan ke halaman verifikasi...');
+      setTimeout(() => {
+        window.location.href = '/auth/verify-email.html';
+      }, 1500);
+      return;
+    }
+
     showSuccess('✓ Login Berhasil!', 'Halaman sedang diperbarui...');
 
     // Re-render based on verification status

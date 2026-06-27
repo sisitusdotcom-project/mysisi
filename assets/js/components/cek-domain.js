@@ -156,7 +156,23 @@
         <div class="cek-domain-ext-info">${ext.info}</div>
       `;
 
-      const handleSelect = () => selectDomainItem('contoh' + ext.ext);
+      const handleSelect = () => {
+        // Preserve what they typed, just replace/append extension
+        const currentInput = cekDomainInput.value;
+        const parsed = parseDomain(currentInput);
+        const base = parsed.base || '';
+        
+        cekDomainInput.value = base + ext.ext;
+        cekDomainInput.focus();
+        
+        // Place cursor at start if empty, or at end if they typed a brand
+        const cursorPosition = base.length > 0 ? cekDomainInput.value.length : 0;
+        
+        setTimeout(() => {
+          cekDomainInput.setSelectionRange(cursorPosition, cursorPosition);
+          cekDomainInput.dispatchEvent(new Event('input')); // trigger suggestions
+        }, 10);
+      };
       item.addEventListener('click', handleSelect);
       item.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleSelect();
@@ -222,9 +238,24 @@
     };
   }
 
+  async function fastCheckDNS(domain) {
+    try {
+      const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=A`, {
+        headers: { 'accept': 'application/dns-json' },
+      });
+      if (!response.ok) return true;
+      const data = await response.json();
+      return !data.Answer || data.Answer.length === 0;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  // To cancel previous checks if user keeps typing
+  let suggestionCheckAborter = null;
+
   function renderInstantSuggestions() {
     const inputVal = cekDomainInput.value;
-
     const { base, isFullDomain, isInvalid } = parseDomain(inputVal);
 
     if (!base || base.length < 2 || isFullDomain || isInvalid) {
@@ -233,22 +264,32 @@
     }
 
     const topExts = ['.com', '.id', '.co.id', '.web.id', '.my.id'];
-
     cekDomainSuggestions.innerHTML = '';
+    
+    // Abort previous check if still running
+    if (suggestionCheckAborter) {
+      suggestionCheckAborter.abort();
+    }
+    suggestionCheckAborter = new AbortController();
+    const signal = suggestionCheckAborter.signal;
 
-    topExts.forEach(ext => {
+    topExts.forEach((ext, index) => {
       const fullDomain = `${base}${ext}`;
       const extData = allExtensions.find(item => item.ext === ext);
 
       const item = document.createElement('div');
       item.className = 'cek-domain-suggestion-item';
       item.setAttribute('role', 'option');
+      item.id = `suggestion-${index}`;
 
       const extLabel = ext.replace('.', '').toUpperCase();
       const priceHTML = extData && extData.newPrice ? `
-        <div class="cek-domain-suggestion-price">
+        <div class="cek-domain-suggestion-price" id="price-${index}" style="display: none;">
           ${extData.oldPrice ? `<span class="cek-domain-suggestion-price-old">Rp${formatCurrency(extData.oldPrice)}</span>` : ''}
           <span class="cek-domain-suggestion-price-new">Rp${formatCurrency(extData.newPrice)}</span>
+        </div>
+        <div class="cek-domain-suggestion-status" id="status-${index}" style="font-size: 0.85rem; color: #6b7280;">
+          <i class="fas fa-spinner fa-spin"></i> Mengecek...
         </div>
       ` : '';
 
@@ -261,10 +302,31 @@
         ${priceHTML}
       `;
 
-      item.addEventListener('click', () => {
-        cekDomainInput.value = fullDomain;
-        cekDomainSuggestions.style.display = 'none';
-        cekDomainBtn.click();
+      // Start async check for this specific domain
+      fastCheckDNS(fullDomain).then(isAvailable => {
+        if (signal.aborted) return;
+        const statusEl = item.querySelector(`#status-${index}`);
+        const priceEl = item.querySelector(`#price-${index}`);
+        
+        if (statusEl && priceEl) {
+          if (isAvailable) {
+            statusEl.style.display = 'none';
+            priceEl.style.display = 'block';
+            
+            // Only add click listener if available
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+              cekDomainInput.value = fullDomain;
+              cekDomainSuggestions.style.display = 'none';
+              cekDomainBtn.click();
+            });
+          } else {
+            statusEl.innerHTML = '<span style="color: #ef4444;"><i class="fas fa-times-circle"></i> Tidak Tersedia</span>';
+            item.style.opacity = '0.6';
+            item.style.cursor = 'not-allowed';
+            item.style.backgroundColor = '#f3f4f6';
+          }
+        }
       });
 
       cekDomainSuggestions.appendChild(item);
@@ -312,7 +374,7 @@
    */
   async function checkDomainAvailability(domain, abortSignal) {
     try {
-      // 1. Check internal backend database first to see if someone else ordered it
+      // 1. Check internal backend database first (Orders spreadsheet via GAS)
       let backendSaysTaken = false;
       try {
         const backendCheck = await APIClient.checkDomain(domain);
@@ -349,7 +411,7 @@
           message: 'Domain sudah terdaftar secara global'
         };
       } else if (backendSaysTaken) {
-        // Available globally, but ordered in our DB
+        // Available globally, but already ordered in our DB spreadsheet
         return {
           available: true,
           isOrdered: true,
@@ -375,6 +437,7 @@
 
       return {
         available: null, // Unknown
+        isOrdered: false,
         error: true,
         method: 'dns-check',
         message: message
@@ -459,7 +522,7 @@
         <h3><i class="fas fa-question-circle"></i> ${sanitizeHTML(fullDomain)}</h3>
         <p class="cek-domain-result-info">Status ketersediaan tidak jelas</p>
         <p style="font-size: 0.85rem; color: #999;">Silakan hubungi support atau lihat detail</p>
-        <a href="/dashboard/#!/dashboard/keranjang" class="cek-domain-action-btn">
+        <a href="/cart/" class="cek-domain-action-btn">
           Lihat Keranjang
         </a>
       `;
@@ -726,7 +789,7 @@
         });
 
         // ALL users (guest or authenticated) → Cart page directly
-        window.location.href = '/dashboard/#!/dashboard/keranjang';
+        window.location.href = '/cart/';
       } catch (error) {
         showError('❌ Gagal', error.message);
       }

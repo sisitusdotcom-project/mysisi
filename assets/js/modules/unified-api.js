@@ -310,6 +310,14 @@ export class APIClient {
   }
 
   /**
+   * Sync order status directly with Midtrans backend
+   * @param {string} orderId 
+   */
+  static syncOrderStatus(orderId) {
+    return this.call('syncorderstatus', { orderId }, { method: 'POST' });
+  }
+
+  /**
    * Update order status
    */
   static updateOrderStatus(orderId, status, transactionId = null) {

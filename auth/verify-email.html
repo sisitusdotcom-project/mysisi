@@ -184,7 +184,7 @@
       const hasCartItems = cartSummary.domains && cartSummary.domains.length > 0;
       
       const primaryBtn = hasCartItems 
-        ? '<a href="/cart/" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Lanjutkan Pembayaran</a>'
+        ? '<a href="/dashboard/#!/dashboard/keranjang" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Lanjutkan Pembayaran</a>'
         : '<a href="/dashboard/" class="btn btn-primary"><i class="fas fa-chart-line"></i> Buka Dashboard</a>';
         
       const redirectMsg = hasCartItems
@@ -277,7 +277,7 @@
           // Auto-redirect after 2 seconds
           setTimeout(() => {
             if (hasCartItems) {
-              window.location.href = '/cart/';
+              window.location.href = '/dashboard/#!/dashboard/keranjang';
             } else {
               window.location.href = '/dashboard/';
             }

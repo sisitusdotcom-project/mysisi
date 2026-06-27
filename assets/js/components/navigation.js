@@ -465,7 +465,7 @@ function updateFloatingCart() {
       el = document.createElement('a');
       el.id = 'floating-cart-btn';
       el.className = 'floating-cart-btn';
-      el.href = '/dashboard/#!/dashboard/keranjang';
+      el.href = '/cart/';
       el.innerHTML = `
         <i class="fas fa-shopping-cart" aria-hidden="true"></i>
         <span class="floating-cart-badge">${count}</span>

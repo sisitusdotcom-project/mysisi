@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <script>
-        window.location.replace("/dashboard/#!/dashboard/keranjang");
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keranjang Saya - SISITUS</title>
@@ -52,8 +49,13 @@
         // Initialize cart page (standalone, not SPA)
         const currentUser = AuthManager.getCurrentUser();
         
-        // Call render function with currentUser
-        render(currentUser);
+        if (currentUser) {
+            // Authenticated users should use the dashboard cart
+            window.location.replace('/dashboard/#!/dashboard/keranjang');
+        } else {
+            // Call render function with null for guest checkout
+            render(null);
+        }
     </script>
 </body>
 </html>
