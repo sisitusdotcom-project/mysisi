@@ -213,10 +213,10 @@ export class APIClient {
 
   /**
    * Verify Google OAuth token
-   * Using GET request to avoid CORS preflight issues
+   * Using POST request because Google tokens are extremely long and can trigger URL limits or CORS failures on GET
    */
   static verifyGoogleToken(token) {
-    return this.call('verifyGoogleToken', { token }, { method: 'GET' });
+    return this.call('verifyGoogleToken', { token }, { method: 'POST' });
   }
 
   /**
