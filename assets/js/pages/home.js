@@ -5,21 +5,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // FAQ functionality is now handled by faq.js component
 
-  // ========== SERVICE CARD FEATURES TOGGLE ==========
+  // ========== SERVICE CARD FEATURES TOGGLE (POPUP) ==========
   const toggleButtons = document.querySelectorAll('.toggle-features');
   if (toggleButtons.length > 0) {
     toggleButtons.forEach((button) => {
       button.addEventListener('click', function () {
         const featuresList = this.nextElementSibling;
-        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        const card = this.closest('.service-card');
+        const packageName = card.querySelector('.card-header h3').innerText;
         
-        if (isExpanded) {
-          this.setAttribute('aria-expanded', 'false');
-          featuresList.setAttribute('hidden', '');
-        } else {
-          this.setAttribute('aria-expanded', 'true');
-          featuresList.removeAttribute('hidden');
-        }
+        // Buat kloningan list fitur untuk ditampilkan di popup
+        const cloneList = featuresList.cloneNode(true);
+        cloneList.removeAttribute('hidden');
+        cloneList.style.display = 'block';
+        cloneList.style.textAlign = 'left';
+        cloneList.style.fontSize = '0.9rem'; // Mengecilkan ukuran font
+        cloneList.style.padding = '0';
+        cloneList.style.margin = '0';
+        
+        // Membungkus isi teks ke dalam span agar tidak pecah oleh flexbox
+        Array.from(cloneList.children).forEach(li => {
+          const icon = li.querySelector('i');
+          if (icon) {
+            // Ambil semua node selain icon
+            const contentNodes = Array.from(li.childNodes).filter(n => n !== icon);
+            const span = document.createElement('span');
+            contentNodes.forEach(n => span.appendChild(n));
+            li.innerHTML = '';
+            li.appendChild(icon);
+            li.appendChild(span);
+          }
+        });
+        
+        Swal.fire({
+          title: `Fitur ${packageName}`,
+          html: cloneList.outerHTML,
+          width: '360px',
+          padding: '1.5rem',
+          confirmButtonText: 'Tutup',
+          confirmButtonColor: 'var(--primary-blue)',
+          customClass: {
+            title: 'swal-title-compact',
+            popup: 'pricing-features-popup'
+          }
+        });
       });
     });
   }

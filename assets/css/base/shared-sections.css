@@ -3,6 +3,20 @@
 /* Hero styling sudah dipindahkan ke components/hero.css */
 
 /* ========== SHARED SECTION TITLE PATTERNS ========== */
+.section-title,
+.services-overview-section > .container > h2,
+.testimonial-section > .container > h2,
+.why-us-section > .container > h2,
+.faq-section > .container > h2,
+.comparison-section > .container > h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  line-height: var(--line-height-tight);
+}
+
 .section-title::after,
 .services-overview-section > .container > h2::after,
 .testimonial-section > .container > h2::after,
@@ -11,28 +25,45 @@
 .comparison-section > .container > h2::after {
   content: '';
   display: block;
-  width: 80px;
+  width: 60px;
   height: 4px;
   background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-cyan) 100%);
-  margin: 2rem auto 1.5rem;
-  border-radius: 2px;
+  margin: 1.5rem auto 1.5rem;
+  border-radius: 4px;
 }
 
 /* ========== STANDARD SECTION PADDING ========== */
 .standard-section {
-  padding: clamp(4rem, 8vw, 6rem) 0;
+  padding: clamp(3.5rem, 5vw, 5rem) 0;
+  position: relative;
 }
 
 .standard-section-light {
   background-color: var(--bg-light);
+  position: relative;
+}
+
+/* Tambahkan efek ambient glow untuk section light */
+.standard-section-light::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 500px;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .standard-section-white {
   background-color: var(--bg-white);
+  position: relative;
 }
 
 .standard-section-lighter {
   background-color: var(--bg-lighter);
+  position: relative;
 }
 
 /* ========== SECTION PADDING VARIANTS ========== */
@@ -162,12 +193,13 @@
 .section-subtitle {
   text-align: center;
   color: var(--text-secondary);
-  font-size: var(--teks-standar);
-  margin-bottom: clamp(2.5rem, 4vw, 3.5rem);
+  font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+  margin-bottom: clamp(2rem, 3vw, 3rem);
   max-width: 650px;
   margin-left: auto;
   margin-right: auto;
   line-height: var(--line-height-relaxed);
+  font-weight: 500;
 }
 
 /* ========== SHARED BUTTON CONTAINER ========== */

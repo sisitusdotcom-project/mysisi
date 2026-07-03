@@ -1,53 +1,102 @@
 :root {
-  /* Warna - Modern Professional Palette */
-  --primary-blue: #2563EB;
-  --primary-blue-dark: #1E40AF;
-  --primary-blue-light: #3B82F6;
-  --secondary-slate: #1E293B;
-  --accent-cyan: #06B6D4;
-  --success-green: #10B981;
-  --warning-orange: #F59E0B;
-  --error-red: #EF4444;
-  --bg-white: #FFFFFF;
-  --bg-light: #F8FAFC;
-  --bg-lighter: #F1F5F9;
-  --text-primary: #1E293B;
-  --text-secondary: #64748B;
-  --text-light: #94A3B8;
-  --border-light: #E2E8F0;
-  --border-medium: #CBD5E1;
-  
-  /* Legacy variable maps for compatibility */
-  --dark-navy: #1E293B;
-  --brand-green: #10B981;
-  --bg-darkest: #F8FAFC;
-  --white: #FFFFFF;
-  --gray-light: #F1F5F9;
-  --gray-medium: #94A3B8;
-  --bg-surface: #1E293B;
-  
-  /* Tipografi - Enhanced for Readability */
-  --font-utama: 'Inter', sans-serif;
-  --judul-besar: clamp(2.2rem, 5vw, 3.5rem);
-  --judul-sedang: clamp(1.6rem, 3.5vw, 2.4rem);
-  --judul-kecil: clamp(1.2rem, 2.5vw, 1.6rem);
-  --teks-standar: clamp(1rem, 1.8vw, 1.125rem);
-  --teks-kecil: clamp(0.85rem, 1.2vw, 0.95rem);
-  --teks-terkecil: clamp(0.75rem, 1vw, 0.85rem);
-  --line-height-tight: 1.3;
-  --line-height-normal: 1.6;
-  --line-height-relaxed: 1.8;
+  /* ========================================================
+     WARNA - COMMITTED PALETTE (OKLCH)
+     ======================================================== */
+  /* Brand Core - Vibrant Blue (oklch 55% L, 0.22 C, 260 H) */
+  --brand-base: oklch(55% 0.22 260);
+  --brand-light: oklch(65% 0.22 260);
+  --brand-dark: oklch(40% 0.20 260);
+  --brand-surface: oklch(95% 0.05 260);
 
-  /* Spacing & Border */
+  /* Accents */
+  --accent-cyan: oklch(70% 0.15 200);
+  --accent-orange: oklch(65% 0.20 45);
+
+  /* Neutrals - Tinted towards brand hue */
+  --bg-white: oklch(100% 0 0);
+  --bg-light: oklch(98% 0.01 260);
+  --bg-lighter: oklch(95% 0.02 260);
+  
+  --text-ink: oklch(20% 0.03 260);
+  --text-body: oklch(35% 0.02 260);
+  --text-muted: oklch(60% 0.02 260);
+  
+  --border-light: oklch(90% 0.02 260);
+  --border-medium: oklch(80% 0.02 260);
+
+  /* Semantic / Legacy Compatibility */
+  --primary-blue: var(--brand-base);
+  --primary-blue-light: var(--brand-light);
+  --primary-blue-dark: var(--brand-dark);
+  --secondary-slate: oklch(25% 0.03 260);
+  --text-primary: var(--text-ink);
+  --text-secondary: var(--text-body);
+  --text-light: var(--text-muted);
+  --success-green: oklch(65% 0.15 150);
+  --error-red: oklch(60% 0.20 25);
+  --warning-orange: var(--accent-orange);
+
+  /* Legacy variable maps for compatibility */
+  --dark-navy: var(--secondary-slate);
+  --brand-green: var(--success-green);
+  --bg-darkest: oklch(97% 0.01 260);
+  --white: var(--bg-white);
+  --gray-light: var(--bg-lighter);
+  --gray-medium: var(--text-muted);
+  --bg-surface: var(--secondary-slate);
+
+  /* ========================================================
+     TIPOGRAFI
+     ======================================================== */
+  /* Font Pairing: Outfit (Display/Modern) + Inter (Body/Clean) */
+  --font-display: 'Outfit', sans-serif;
+  --font-utama: 'Inter', sans-serif;
+
+  /* Scale Ratio: Major Third (1.250) */
+  --judul-besar: clamp(2.5rem, 6vw, 4.5rem); /* Hero limit max 4.5rem (~72px) */
+  --judul-sedang: clamp(1.8rem, 4vw, 2.5rem);
+  --judul-kecil: clamp(1.3rem, 2.5vw, 1.8rem);
+  --teks-standar: clamp(1rem, 1.5vw, 1.125rem);
+  --teks-kecil: clamp(0.875rem, 1.2vw, 1rem);
+  --teks-terkecil: clamp(0.75rem, 1vw, 0.875rem);
+
+  --line-height-tight: 1.15; /* Tighter for display */
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+
+  /* ========================================================
+     SPACING & BORDER & SHADOW
+     ======================================================== */
   --radius: 8px;
   --radius-medium: 12px;
   --radius-large: 16px;
-  --radius-besar: 20px;
-  --shadow-sm: 0 1px 2px rgba(30, 41, 59, 0.05);
-  --shadow-md: 0 4px 12px rgba(30, 41, 59, 0.08);
-  --shadow-lg: 0 10px 25px rgba(30, 41, 59, 0.12);
-  --shadow-lembut: 0 4px 16px rgba(30, 41, 59, 0.1);
-  --shadow-elegan: 0 10px 30px rgba(37, 99, 235, 0.15);
-  --transisi: all 0.25s ease-in-out;
-  --transisi-cepat: all 0.15s ease-in-out;
+  --radius-besar: 24px;
+  
+  /* OKLCH Shadows for better integration */
+  --shadow-sm: 0 2px 4px oklch(20% 0.03 260 / 4%);
+  --shadow-md: 0 4px 12px oklch(20% 0.03 260 / 8%);
+  --shadow-lg: 0 12px 24px oklch(20% 0.03 260 / 12%);
+  --shadow-lembut: 0 8px 32px oklch(20% 0.03 260 / 6%);
+  --shadow-elegan: 0 16px 40px oklch(55% 0.22 260 / 15%);
+
+  /* ========================================================
+     MOTION & ANIMATION
+     ======================================================== */
+  /* Exponential easing curves */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  
+  --transisi: all 0.4s var(--ease-out-quart);
+  --transisi-cepat: all 0.2s var(--ease-out-quint);
+  
+  /* ========================================================
+     Z-INDEX SEMANTIC SCALE
+     ======================================================== */
+  --z-base: 1;
+  --z-dropdown: 40;
+  --z-sticky: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-tooltip: 80;
+  --z-toast: 90;
 }

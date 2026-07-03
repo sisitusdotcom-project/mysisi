@@ -18,9 +18,9 @@
   // Buat paragraf copyright
   const copyrightPara = document.createElement("p");
   const currentYear = new Date().getFullYear();
-  copyrightPara.innerHTML = `&copy; <span>${currentYear}</span> — sisitus.com | Hak Cipta Dilindungi<br>
-                             Developed by: <a href="https://www.instagram.com/lukman_looker?igsh=aTZwbmgxdXg0OTJk" class="copyright-link" aria-label="Designer sisitus">Designer</a><br>
-                             Powered by`;
+  copyrightPara.innerHTML = `&copy; <span>${currentYear}</span> — sisitus.com | Hak Cipta Dilindungi<br>` +
+                            `Developed by: <a href="https://www.instagram.com/lukman_looker?igsh=aTZwbmgxdXg0OTJk" class="copyright-link" aria-label="Designer sisitus">Designer</a><br>` +
+                            `Powered by<br>`;
 
   // Buat watermark
   const wm = document.createElement("a");
@@ -31,7 +31,7 @@
   wm.innerHTML = 'sisitus<span>.com</span>';
 
   // Gabungkan elemen
-  copyrightPara.appendChild(document.createElement("br"));
+  // Gabungkan elemen
   copyrightPara.appendChild(wm);
   copyrightContainer.appendChild(copyrightPara);
   footerGrid.after(copyrightContainer);

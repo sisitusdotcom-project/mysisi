@@ -243,6 +243,10 @@ footer {
   max-width: 1200px;
   line-height: var(--line-height-relaxed);
 }
+.footer-copyright p {
+  max-width: none;
+  margin: 0 auto;
+}
 .copyright-link {
   color: var(--accent-cyan);
   font-weight: 600;

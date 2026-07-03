@@ -48,13 +48,18 @@ img {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
   font-weight: 700;
+  letter-spacing: -0.02em; /* Tighter letter-spacing for display headings */
+  text-wrap: balance; /* Impeccable standard */
 }
 
 p {
   line-height: var(--line-height-relaxed);
+  max-width: 70ch; /* Impeccable standard: 65-75ch limit */
+  text-wrap: pretty; /* Impeccable standard */
 }
 
 /* Status aktif navigasi */
@@ -72,4 +77,18 @@ p {
 
 .section {
   padding: clamp(4rem, 8vw, 6rem) 0;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: REDUCED MOTION (Impeccable standard)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
