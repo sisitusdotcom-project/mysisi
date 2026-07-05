@@ -1,0 +1,86 @@
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Paket & Layanan</h1>
+        <p class="admin-page-desc">Kelola penawaran produk, harga, dan fitur paket.</p>
+    </div>
+    <div>
+        <button class="admin-btn" id="btn-add-package">
+            <i class="fas fa-plus"></i> Tambah Paket
+        </button>
+    </div>
+</div>
+
+<div class="admin-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;" id="packages-grid">
+    <!-- Injected via JS -->
+</div>
+
+<!-- Modal Form Package -->
+<div id="package-modal" class="admin-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="admin-card" style="width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <h3 id="package-modal-title" style="margin: 0 0 20px 0;">Buat Paket Baru</h3>
+        <form id="package-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Package ID (Tanpa spasi)</label>
+                    <input type="text" id="pkg-id" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Nama Paket</label>
+                    <input type="text" id="pkg-name" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Harga (Rp)</label>
+                    <input type="number" id="pkg-price" required min="0" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Periode (Tahun)</label>
+                    <input type="number" id="pkg-cycle" required min="1" value="1" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Deskripsi Singkat (Gunakan koma untuk list fitur - misal: Domain Gratis,Hosting SSD,Support 24/7)</label>
+                <textarea id="pkg-desc" rows="3" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Penyimpanan</label>
+                    <input type="text" id="pkg-storage" value="N/A" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Akun Email</label>
+                    <input type="text" id="pkg-email" value="Limited" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">SSL</label>
+                    <input type="text" id="pkg-ssl" value="Free" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Backup</label>
+                    <input type="text" id="pkg-backup" value="Manual" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Support</label>
+                    <input type="text" id="pkg-support" value="Standard" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="pkg-active" checked style="width: 18px; height: 18px;">
+                <label for="pkg-active" style="font-size: 0.9rem;">Paket Aktif</label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="btn-close-package" class="admin-btn" style="background: transparent; border: 1px solid var(--admin-border); color: var(--admin-text-main);">Batal</button>
+                <button type="submit" id="btn-save-package" class="admin-btn"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>

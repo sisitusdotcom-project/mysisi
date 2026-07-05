@@ -128,6 +128,7 @@ export class AuthManager {
       photoURL: user.photoURL || this.getDefaultAvatar(),
       whatsapp: user.whatsapp || '',
       authMethod: user.authMethod || 'email',
+      role: user.role || 'customer',
       verifiedAt: user.verifiedAt || Date.now()
     };
   }
@@ -242,6 +243,13 @@ export class AuthManager {
    */
   static getUserId() {
     return this.state.user?.userId || null;
+  }
+
+  /**
+   * Check if user is admin
+   */
+  static isAdmin() {
+    return this.isLoggedIn() && this.state.user?.role === 'admin';
   }
 
   /**

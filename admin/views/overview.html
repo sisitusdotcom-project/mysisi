@@ -1,0 +1,97 @@
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Dashboard Overview</h1>
+        <p class="admin-page-desc">Ringkasan performa sistem SISITUS hari ini.</p>
+    </div>
+    <div>
+        <button class="admin-btn" id="refresh-stats">
+            <i class="fas fa-sync-alt"></i> Refresh Data
+        </button>
+    </div>
+</div>
+
+<!-- Metrics Cards -->
+<div class="admin-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+    
+    <div class="admin-card metric-card" style="border-top: 4px solid var(--admin-info);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: var(--admin-text-muted); margin: 0 0 8px 0; font-size: 0.9rem;">Total Pengguna</p>
+                <h3 style="margin: 0; font-size: 2rem; font-weight: 700;" id="stat-users">-</h3>
+            </div>
+            <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 12px; color: var(--admin-info);">
+                <i class="fas fa-users" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <p style="margin: 16px 0 0 0; font-size: 0.85rem; color: var(--admin-success); display: flex; align-items: center; gap: 4px;">
+            <i class="fas fa-arrow-up"></i> 12% dari bulan lalu
+        </p>
+    </div>
+
+    <div class="admin-card metric-card" style="border-top: 4px solid var(--admin-success);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: var(--admin-text-muted); margin: 0 0 8px 0; font-size: 0.9rem;">Pendapatan (MRR)</p>
+                <h3 style="margin: 0; font-size: 2rem; font-weight: 700;" id="stat-revenue">-</h3>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 12px; color: var(--admin-success);">
+                <i class="fas fa-rupiah-sign" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <p style="margin: 16px 0 0 0; font-size: 0.85rem; color: var(--admin-success); display: flex; align-items: center; gap: 4px;">
+            <i class="fas fa-arrow-up"></i> 8.5% dari bulan lalu
+        </p>
+    </div>
+
+    <div class="admin-card metric-card" style="border-top: 4px solid var(--admin-primary);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: var(--admin-text-muted); margin: 0 0 8px 0; font-size: 0.9rem;">Langganan Aktif</p>
+                <h3 style="margin: 0; font-size: 2rem; font-weight: 700;" id="stat-subs">-</h3>
+            </div>
+            <div style="background: var(--admin-primary-glow); padding: 12px; border-radius: 12px; color: var(--admin-primary);">
+                <i class="fas fa-box-open" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <p style="margin: 16px 0 0 0; font-size: 0.85rem; color: var(--admin-text-muted); display: flex; align-items: center; gap: 4px;">
+            Sesuai target
+        </p>
+    </div>
+
+    <div class="admin-card metric-card" style="border-top: 4px solid var(--admin-warning);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: var(--admin-text-muted); margin: 0 0 8px 0; font-size: 0.9rem;">Tiket Support</p>
+                <h3 style="margin: 0; font-size: 2rem; font-weight: 700;" id="stat-tickets">-</h3>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 12px; color: var(--admin-warning);">
+                <i class="fas fa-headset" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <p style="margin: 16px 0 0 0; font-size: 0.85rem; color: var(--admin-danger); display: flex; align-items: center; gap: 4px;">
+            <i class="fas fa-exclamation-circle"></i> 5 butuh balasan segera
+        </p>
+    </div>
+</div>
+
+<!-- Charts and Recent Activity Area -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    
+    <div class="admin-card">
+        <h3 style="margin: 0 0 20px 0; font-family: var(--font-admin-heading);">Grafik Pendaftaran Baru</h3>
+        <div style="height: 300px; position: relative; width: 100%;">
+            <canvas id="registration-chart"></canvas>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h3 style="margin: 0 0 20px 0; font-family: var(--font-admin-heading);">Aktivitas Terbaru</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 16px;" id="recent-activities">
+            <div style="display: flex; justify-content: center; padding: 20px 0;">
+                <i class="fas fa-spinner fa-spin" style="color: var(--admin-text-muted);"></i>
+            </div>
+        </div>
+        
+    </div>
+</div>

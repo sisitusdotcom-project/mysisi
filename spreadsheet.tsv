@@ -1,8 +1,10 @@
 SHEET: USERS
 ═══════════════════════════════════════════════════════════════════════════════
-User ID	Display Name	Email	WhatsApp	Photo URL	Created At	Updated At	Email Verified	Verification Token	Password Hash	Status	Auth Method
-USER-1711359600000	John Doe	john@example.com	+62812345678	https://profile.com/photo.jpg	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z	Yes	abc123def456ghi789	$2a$10$abc...	active	email
-
+User ID	Display Name	Email	WhatsApp	Photo URL	Created At	Updated At	Email Verified	Verification Token	Password Hash	Status	Auth Method	Role
+USER-1711359600000	Admin Ganteng	admin@sisitus.com	62812345678	https://lh3.googleusercontent.com/a/ACg8ocJqaDVRZvAe-2puas8186cRZdxE-vI66K4eA0kF9xE1EeczAA0=s96-c	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z	Yes	abc123def456ghi789	0f7e14db-5c2f-4a$d5b355a2949fc9d85541893f2d894a0e4ee36c6eef4b4f5c2b6d8a60edabcee0	active	email	admin
+USER-1782628269873	bokap	semutpeyok@gmail.com			2026-06-28T06:31:09.878Z	2026-06-28T06:31:36.531Z	Yes	fea9f74a-3162-4dde-bcd1-1371c9416b73-1782628269875	988f862f-adf8-4d$3f3c55d4b74b5011d856146015ece451d8cfcf72c5182a5cb9f520ecbc8ca0fc	active	email	customer
+USER-1782697159986	lukman hakim	lukmanlooker00@gmail.com	081215289095	https://lh3.googleusercontent.com/a/ACg8ocJqaDVRZvAe-2puas8186cRZdxE-vI66K4eA0kF9xE1EeczAA0=s96-c	2026-06-29T01:39:19.986Z	2026-06-29T01:44:41.123Z	Yes	50a675bf-579b-4569-ac93-093eea49b376-1782697159988	45201f19-5a44-40f0-970a-eb02bcbe6273	active	google	customer
+USER-1783229142585	sopirin.id	sopirin.id@gmail.com			2026-07-05T05:25:42.588Z	2026-07-05T05:27:10.138Z	Yes	82ae6bb9-34d8-4493-92bd-c02163c1f676-1783229142586	0f7e14db-5c2f-4a$d5b355a2949fc9d85541893f2d894a0e4ee36c6eef4b4f5c2b6d8a60edabcee0	active	email	customer
 
 SHEET: ORDERS
 ═══════════════════════════════════════════════════════════════════════════════
@@ -25,7 +27,9 @@ API-1711359600000	2026-03-27T10:00:00.000Z	registerUser	USER-1711359600000	john@
 SHEET: DOMAIN_PACKAGES
 ═══════════════════════════════════════════════════════════════════════════════
 Package ID	Package Name	Price (Rp)	Period (Years)	Description	Storage (GB)	Email Accounts	SSL Certificate	Backups	Support Level	Status	Created At	Updated At
-starter	Starter	199000	1	Basic domain only	N/A	Limited	Free	Manual	Standard	active	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z
+starter	Paket Starter	599000	1	Sempurna untuk Bisnis Kecil & UMKM	N/A	Limited	Free	Manual	Standard	active	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z
+grower	Paket Grower	1299000	3	Untuk Bisnis Menengah & Perusahaan Profesional	N/A	Unlimited	Free	Daily	Priority	active	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z
+pioneer	Paket Pioneer	2399000	1	Untuk Bisnis E-Commerce & Penjual Produk	N/A	Unlimited	Free	Daily	24/7 Premium	active	2026-03-27T10:00:00.000Z	2026-03-27T10:00:00.000Z
 
 
 SHEET: EMAIL_TEMPLATES

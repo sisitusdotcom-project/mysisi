@@ -47,7 +47,8 @@ function ensureUsersSheet() {
       'Verification Token',  // I
       'Password Hash',    // J
       'Status',          // K
-      'Auth Method'       // L
+      'Auth Method',     // L
+      'Role'             // M
     ]);
   }
   
@@ -345,7 +346,8 @@ function registerUser(userData) {
       token,
       passwordHash,
       'active',
-      userData.authMethod
+      userData.authMethod,
+      'customer'
     ]);
 
     // Send verification email for email auth
@@ -424,6 +426,7 @@ function loginUser(email, password) {
           whatsapp: data[i][3],
           photoURL: data[i][4],
           authMethod: data[i][11],
+          role: data[i][12] || 'customer',
           verifiedAt: data[i][6]
         }, 'Login berhasil');
       }
@@ -2340,6 +2343,47 @@ function doPost(e) {
         return respondJson(handleMidtransWebhook(params));
       case 'initializeallsheets':
         return respondJson(initializeAllSheets());
+      // --- ADMIN ENDPOINTS ---
+      case 'getadminstats':
+        return respondJson(getAdminStats(params.adminId));
+      case 'getadminpromos':
+        return respondJson(getAdminPromos(params.adminId));
+      case 'saveadminpromo':
+        return respondJson(saveAdminPromo(params.adminId, params.promoData));
+      case 'deleteadminpromo':
+        return respondJson(deleteAdminPromo(params.adminId, params.code));
+      case 'getallusers':
+        return respondJson(getAllUsers(params.adminId));
+      case 'getalltransactions':
+        return respondJson(getAllTransactions(params.adminId));
+      case 'getadminpromos':
+        return respondJson(getAdminPromos(params.adminId));
+      case 'getadminpackages':
+        return respondJson(getAdminPackages(params.adminId));
+      case 'saveadminpackage':
+        return respondJson(saveAdminPackage(params.adminId, params.packageData));
+      case 'deleteadminpackage':
+        return respondJson(deleteAdminPackage(params.adminId, params.id));
+      case 'getadmintickets':
+        return respondJson(getAdminTickets(params.adminId));
+      case 'getadmindns':
+        return respondJson(getAdminDNS(params.adminId));
+      case 'saveadminuser':
+        return respondJson(saveAdminUser(params.adminId, params.userData));
+      case 'deleteadminuser':
+        return respondJson(deleteAdminUser(params.adminId, params.id));
+      case 'saveadmintransaction':
+        return respondJson(saveAdminTransaction(params.adminId, params.txData));
+      case 'deleteadmintransaction':
+        return respondJson(deleteAdminTransaction(params.adminId, params.id));
+      case 'saveadminticket':
+        return respondJson(saveAdminTicket(params.adminId, params.ticketData));
+      case 'deleteadminticket':
+        return respondJson(deleteAdminTicket(params.adminId, params.id));
+      case 'saveadmindns':
+        return respondJson(saveAdminDNS(params.adminId, params.dnsData));
+      case 'deleteadmindns':
+        return respondJson(deleteAdminDNS(params.adminId, params.domain));
       default:
         return respondJson(buildResponse(false, null, 'Action tidak dikenal', 'UNKNOWN_ACTION'));
     }
@@ -2393,5 +2437,660 @@ function doGet(e) {
   } catch (error) {
     Logger.log('Error in doGet: ' + error);
     return respondJson(buildResponse(false, null, 'Server error: ' + error.toString(), 'SERVER_ERROR'));
+  }
+}
+// ============================================================================
+// ADMIN DASHBOARD ENDPOINTS
+// ============================================================================
+
+/**
+ * Check if a user is an admin
+ */
+function isAdmin(adminId) {
+  if (!adminId) return false;
+  const sheet = ensureUsersSheet();
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === adminId && data[i][10] === 'active' && data[i][12] === 'admin') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getAdminStats(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    
+    const usersSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('USERS');
+    const ordersSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('ORDERS');
+    
+    let totalUsers = 0;
+    if (usersSheet) totalUsers = Math.max(0, usersSheet.getLastRow() - 1);
+    
+    let mrr = 0;
+    let activeSubs = 0;
+    
+    let activities = [];
+    
+    // Collect latest users
+    if (usersSheet) {
+      const data = usersSheet.getDataRange().getValues();
+      // limit to last 10 to speed up
+      for (let i = Math.max(1, data.length - 10); i < data.length; i++) {
+        const row = data[i];
+        if (!row[0]) continue;
+        activities.push({
+          type: 'user',
+          title: `User baru mendaftar: <strong>${row[1]}</strong>`,
+          timestamp: new Date(row[5]).getTime() || 0,
+          timeStr: row[5]
+        });
+      }
+    }
+
+    // Collect latest orders
+    if (ordersSheet) {
+      const ordersData = ordersSheet.getDataRange().getValues();
+      for (let i = 1; i < ordersData.length; i++) {
+        if (ordersData[i][9] === 'paid') { // Payment Status
+          mrr += parseInt(ordersData[i][7]) || 0; // Total Amount
+          activeSubs++;
+        }
+      }
+      
+      // limit to last 10 for activities
+      for (let i = Math.max(1, ordersData.length - 10); i < ordersData.length; i++) {
+        const row = ordersData[i];
+        if (!row[0]) continue;
+        if (row[9] === 'paid') {
+          activities.push({
+            type: 'transaction',
+            title: `${row[4] || 'User'} membayar tagihan <strong>${row[0]}</strong>`,
+            timestamp: new Date(row[13] || row[12]).getTime() || 0,
+            timeStr: row[13] || row[12]
+          });
+        }
+      }
+    }
+    
+    const ticketsSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('SUPPORT_TICKETS');
+    let totalTickets = 0;
+    if (ticketsSheet) {
+      const data = ticketsSheet.getDataRange().getValues();
+      totalTickets = Math.max(0, data.length - 1);
+      for (let i = Math.max(1, data.length - 10); i < data.length; i++) {
+        const row = data[i];
+        if (!row[0]) continue;
+        activities.push({
+          type: 'ticket',
+          title: `Tiket baru: <strong>${row[1]}</strong>`,
+          timestamp: new Date(row[5]).getTime() || 0,
+          timeStr: row[5]
+        });
+      }
+    }
+
+    // Sort descending by timestamp
+    activities.sort((a, b) => b.timestamp - a.timestamp);
+    
+    const recentActivities = activities.slice(0, 5).map(act => ({
+      type: act.type,
+      title: act.title,
+      timeStr: act.timeStr || new Date(act.timestamp).toLocaleString('id-ID')
+    }));
+    
+    return buildResponse(true, {
+      users: totalUsers.toString(),
+      revenue: 'Rp ' + mrr.toLocaleString('id-ID'),
+      subscriptions: activeSubs.toString(),
+      tickets: totalTickets.toString(),
+      recentActivities: recentActivities
+    }, 'Stats fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function getAllUsers(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    
+    const sheet = ensureUsersSheet();
+    const data = sheet.getDataRange().getValues();
+    const users = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      users.push({
+        id: data[i][0],
+        name: data[i][1],
+        email: data[i][2],
+        joined: data[i][5],
+        status: data[i][10],
+        role: data[i][2] === ADMIN_EMAIL ? 'admin' : 'customer'
+      });
+    }
+    
+    return buildResponse(true, users.reverse(), 'Users fetched'); // newest first
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminUser(adminId, userData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof userData === 'string') userData = JSON.parse(userData);
+    
+    const sheet = ensureUsersSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === userData.id) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    // User ID, Name, Email, WhatsApp, Photo URL, Created At, Updated At, Email Verified, Verification Token, Password Hash, Status, Auth Method, Role
+    const rowData = [
+      userData.id || ('USER-' + Date.now()),
+      userData.name,
+      userData.email,
+      userData.whatsapp || '',
+      userData.photo || '',
+      new Date().toISOString(),
+      new Date().toISOString(),
+      userData.verified ? 'Yes' : 'No',
+      '',
+      '',
+      userData.active ? 'active' : 'inactive',
+      'email',
+      userData.role || 'customer'
+    ];
+    
+    if (rowIndex > -1) {
+      rowData[4] = data[rowIndex - 1][4]; // Preserve Photo URL
+      rowData[5] = data[rowIndex - 1][5]; // Preserve Created At
+      rowData[8] = data[rowIndex - 1][8]; // Preserve Verification Token
+      rowData[9] = data[rowIndex - 1][9]; // Preserve Password Hash
+      if (userData.password) {
+         // If admin changes password
+         rowData[9] = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, userData.password).map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join('');
+      }
+      sheet.getRange(rowIndex, 1, 1, 13).setValues([rowData]);
+      return buildResponse(true, rowData, 'User updated');
+    } else {
+      if (userData.password) {
+         rowData[9] = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, userData.password).map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join('');
+      }
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'User created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminUser(adminId, id) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureUsersSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === id) {
+        sheet.getRange(i + 1, 11).setValue('inactive'); // col 11 is Status
+        return buildResponse(true, null, 'User disabled');
+      }
+    }
+    return buildResponse(false, null, 'User not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function getAllTransactions(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('INVOICES');
+    if (!sheet) return buildResponse(true, [], 'No invoices yet');
+    
+    const data = sheet.getDataRange().getValues();
+    const tx = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      tx.push({
+        inv: data[i][0],
+        name: data[i][4],
+        email: data[i][3],
+        item: data[i][6],
+        total: data[i][7],
+        status: data[i][12],
+        date: data[i][11] || data[i][10] // generated or paid at
+      });
+    }
+    
+    return buildResponse(true, tx.reverse(), 'Transactions fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminTransaction(adminId, txData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof txData === 'string') txData = JSON.parse(txData);
+    
+    const sheet = ensureInvoicesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === txData.inv) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    // Invoice ID, Order ID, User ID, Email, Customer Name, Domain, Package, Total Amount, Transaction ID, Payment Method, Paid At, Generated At, Status
+    const rowData = [
+      txData.inv || ('INV-MANUAL-' + Date.now()),
+      txData.orderId || '',
+      txData.userId || '',
+      txData.email || '',
+      txData.name || '',
+      txData.domain || '',
+      txData.item || '',
+      txData.total || 0,
+      txData.transactionId || '',
+      txData.paymentMethod || 'Manual',
+      txData.status === 'paid' ? (txData.date || new Date().toISOString()) : '',
+      txData.date || new Date().toISOString(),
+      txData.status || 'unpaid'
+    ];
+    
+    if (rowIndex > -1) {
+      rowData[1] = data[rowIndex - 1][1]; // preserve Order ID
+      rowData[2] = data[rowIndex - 1][2]; // preserve User ID
+      rowData[11] = data[rowIndex - 1][11]; // preserve Generated At
+      if (txData.status === 'paid' && data[rowIndex - 1][12] !== 'paid') {
+        rowData[10] = new Date().toISOString(); // just paid
+      } else {
+        rowData[10] = data[rowIndex - 1][10]; // preserve Paid At
+      }
+      sheet.getRange(rowIndex, 1, 1, 13).setValues([rowData]);
+      return buildResponse(true, rowData, 'Transaction updated');
+    } else {
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'Transaction created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminTransaction(adminId, invId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureInvoicesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === invId) {
+        sheet.getRange(i + 1, 13).setValue('failed'); // col 13 is Status
+        return buildResponse(true, null, 'Transaction cancelled/failed');
+      }
+    }
+    return buildResponse(false, null, 'Transaction not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function getAdminPromos(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('PROMO_CODES');
+    if (!sheet) return buildResponse(true, [], 'No promos yet');
+    
+    const data = sheet.getDataRange().getValues();
+    const promos = [];
+    for (let i = 1; i < data.length; i++) {
+      promos.push({
+        code: data[i][0],
+        type: data[i][1], // percentage or fixed
+        value: data[i][2],
+        usage: data[i][3] || 0,
+        limit: data[i][4] || -1,
+        start: data[i][5],
+        end: data[i][6],
+        active: data[i][7] === true || data[i][7] === 'TRUE' || data[i][7] === 'active'
+      });
+    }
+    return buildResponse(true, promos, 'Promos fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminPromo(adminId, promoData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof promoData === 'string') promoData = JSON.parse(promoData);
+    
+    const sheet = ensurePromoCodesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === promoData.code) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    const rowData = [
+      promoData.code,
+      promoData.type,
+      promoData.value,
+      promoData.limit || -1,
+      promoData.usage || 0,
+      promoData.start || new Date().toISOString(),
+      promoData.end || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+      promoData.active ? 'Yes' : 'No',
+      promoData.description || ''
+    ];
+    
+    if (rowIndex > -1) {
+      rowData[4] = data[rowIndex - 1][4] || 0; // Preserve current usage
+      sheet.getRange(rowIndex, 1, 1, 9).setValues([rowData]);
+      return buildResponse(true, rowData, 'Promo updated');
+    } else {
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'Promo created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminPromo(adminId, code) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensurePromoCodesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === code) {
+        sheet.getRange(i + 1, 8).setValue('No');
+        return buildResponse(true, null, 'Promo disabled');
+      }
+    }
+    return buildResponse(false, null, 'Promo not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function getAdminPackages(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('DOMAIN_PACKAGES');
+    if (!sheet) return buildResponse(true, [], 'No packages yet');
+    
+    const data = sheet.getDataRange().getValues();
+    const packages = [];
+    for (let i = 1; i < data.length; i++) {
+      packages.push({
+        id: data[i][0],
+        name: data[i][1],
+        price: parseInt(data[i][2]) || 0,
+        cycle: data[i][3],
+        desc: data[i][4] || '',
+        features: (data[i][4] || '').split(','), // fallback for old UI
+        storage: data[i][5],
+        emailAcc: data[i][6],
+        ssl: data[i][7],
+        backup: data[i][8],
+        support: data[i][9],
+        active: data[i][10] === 'active' || data[i][10] === true || data[i][10] === 'TRUE'
+      });
+    }
+    return buildResponse(true, packages, 'Packages fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminPackage(adminId, packageData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof packageData === 'string') packageData = JSON.parse(packageData);
+    
+    const sheet = ensureDomainPackagesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === packageData.id) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    const rowData = [
+      packageData.id,
+      packageData.name,
+      packageData.price || 0,
+      packageData.cycle || 1,
+      packageData.desc || '',
+      packageData.storage || 'N/A',
+      packageData.emailAcc || 'Limited',
+      packageData.ssl || 'Free',
+      packageData.backup || 'Manual',
+      packageData.support || 'Standard',
+      packageData.active ? 'active' : 'inactive',
+      new Date().toISOString(),
+      new Date().toISOString()
+    ];
+    
+    if (rowIndex > -1) {
+      rowData[11] = data[rowIndex - 1][11]; // Preserve created at
+      sheet.getRange(rowIndex, 1, 1, 13).setValues([rowData]);
+      return buildResponse(true, rowData, 'Package updated');
+    } else {
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'Package created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminPackage(adminId, id) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureDomainPackagesSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === id) {
+        sheet.getRange(i + 1, 11).setValue('inactive'); // col 11 is Status
+        return buildResponse(true, null, 'Package disabled');
+      }
+    }
+    return buildResponse(false, null, 'Package not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function ensureSheetExists(sheetName, headers) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.appendRow(headers);
+  }
+  return sheet;
+}
+
+function getAdminTickets(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureSheetExists('SUPPORT_TICKETS', ['Ticket ID', 'Subject', 'User Email', 'Status', 'Priority', 'Created At', 'Messages']);
+    
+    const data = sheet.getDataRange().getValues();
+    const tickets = [];
+    for (let i = 1; i < data.length; i++) {
+      tickets.push({
+        id: data[i][0],
+        subject: data[i][1],
+        user: data[i][2],
+        status: data[i][3],
+        priority: data[i][4],
+        time: data[i][5]
+      });
+    }
+    return buildResponse(true, tickets.reverse(), 'Tickets fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminTicket(adminId, ticketData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof ticketData === 'string') ticketData = JSON.parse(ticketData);
+    
+    const sheet = ensureSheetExists('SUPPORT_TICKETS', ['Ticket ID', 'Subject', 'User Email', 'Status', 'Priority', 'Created At', 'Messages']);
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === ticketData.id) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    // Ticket ID, Subject, User Email, Status, Priority, Created At, Messages
+    const rowData = [
+      ticketData.id || ('TCK-' + Date.now()),
+      ticketData.subject || '',
+      ticketData.user || '',
+      ticketData.status || 'open',
+      ticketData.priority || 'medium',
+      ticketData.time || new Date().toISOString(),
+      ticketData.messages || '[]'
+    ];
+    
+    if (rowIndex > -1) {
+      rowData[6] = data[rowIndex - 1][6]; // Preserve Messages
+      rowData[5] = data[rowIndex - 1][5]; // Preserve Created At
+      sheet.getRange(rowIndex, 1, 1, 7).setValues([rowData]);
+      return buildResponse(true, rowData, 'Ticket updated');
+    } else {
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'Ticket created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminTicket(adminId, id) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureSheetExists('SUPPORT_TICKETS', ['Ticket ID', 'Subject', 'User Email', 'Status', 'Priority', 'Created At', 'Messages']);
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === id) {
+        sheet.getRange(i + 1, 4).setValue('closed'); // col 4 is Status
+        return buildResponse(true, null, 'Ticket closed');
+      }
+    }
+    return buildResponse(false, null, 'Ticket not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function getAdminDNS(adminId) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureSheetExists('DNS_RECORDS', ['Domain', 'User ID', 'Records Count', 'NS Status']);
+    
+    const data = sheet.getDataRange().getValues();
+    const dnsList = [];
+    for (let i = 1; i < data.length; i++) {
+      dnsList.push({
+        domain: data[i][0],
+        user: data[i][1],
+        records: data[i][2],
+        ns_status: data[i][3]
+      });
+    }
+    return buildResponse(true, dnsList, 'DNS fetched');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function saveAdminDNS(adminId, dnsData) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    if (typeof dnsData === 'string') dnsData = JSON.parse(dnsData);
+    
+    const sheet = ensureSheetExists('DNS_RECORDS', ['Domain', 'User ID', 'Records Count', 'NS Status']);
+    const data = sheet.getDataRange().getValues();
+    
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === dnsData.domain) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+    
+    // Domain, User ID, Records Count, NS Status
+    const rowData = [
+      dnsData.domain || '',
+      dnsData.user || '',
+      dnsData.records || 0,
+      dnsData.ns_status || 'pending'
+    ];
+    
+    if (rowIndex > -1) {
+      sheet.getRange(rowIndex, 1, 1, 4).setValues([rowData]);
+      return buildResponse(true, rowData, 'DNS updated');
+    } else {
+      sheet.appendRow(rowData);
+      return buildResponse(true, rowData, 'DNS created');
+    }
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+function deleteAdminDNS(adminId, domain) {
+  try {
+    if (!isAdmin(adminId)) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    const sheet = ensureSheetExists('DNS_RECORDS', ['Domain', 'User ID', 'Records Count', 'NS Status']);
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === domain) {
+        sheet.deleteRow(i + 1);
+        return buildResponse(true, null, 'DNS deleted');
+      }
+    }
+    return buildResponse(false, null, 'DNS not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
   }
 }

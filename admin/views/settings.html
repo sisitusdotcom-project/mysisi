@@ -1,0 +1,58 @@
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Pengaturan Sistem</h1>
+        <p class="admin-page-desc">Konfigurasi global platform SISITUS.</p>
+    </div>
+    <div>
+        <button class="admin-btn">
+            <i class="fas fa-save"></i> Simpan Perubahan
+        </button>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 250px 1fr; gap: 32px;">
+    
+    <!-- Settings Navigation -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="admin-btn" style="background: var(--admin-primary); justify-content: flex-start; text-align: left;">
+            <i class="fas fa-globe" style="width: 24px;"></i> Umum
+        </button>
+        <button class="admin-btn" style="background: transparent; color: var(--admin-text-muted); justify-content: flex-start; text-align: left; border: 1px solid transparent;">
+            <i class="fas fa-envelope" style="width: 24px;"></i> Email & SMTP
+        </button>
+        <button class="admin-btn" style="background: transparent; color: var(--admin-text-muted); justify-content: flex-start; text-align: left; border: 1px solid transparent;">
+            <i class="fas fa-credit-card" style="width: 24px;"></i> Payment Gateway
+        </button>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="admin-card" style="padding: 32px;">
+        <h3 style="margin: 0 0 24px 0; font-family: var(--font-admin-heading); border-bottom: 1px solid var(--admin-border); padding-bottom: 16px;">Pengaturan Umum</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Nama Website</label>
+                <input type="text" value="SISITUS Web Builder" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Email Admin Induk</label>
+                <input type="email" value="hello@sisitus.com" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; max-width: 400px; padding: 16px; border: 1px solid var(--admin-border); border-radius: 8px; background: rgba(255,255,255,0.02);">
+                <div>
+                    <h4 style="margin: 0 0 4px 0;">Maintenance Mode</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--admin-text-muted);">Tutup akses publik sementara.</p>
+                </div>
+                <!-- Toggle Switch -->
+                <label style="position: relative; display: inline-block; width: 50px; height: 28px;">
+                    <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--admin-surface-hover); border: 1px solid var(--admin-border); transition: .4s; border-radius: 34px;">
+                        <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: var(--admin-text-muted); transition: .4s; border-radius: 50%;"></span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

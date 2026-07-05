@@ -383,6 +383,84 @@ export class APIClient {
   static getActivePromoCodes() {
     return this.call('getActivePromoCodes', {}, { method: 'GET' });
   }
+
+  // ========== ADMIN ENDPOINTS ==========
+
+  static getAdminStats(adminId = 'ADMIN') {
+    return this.call('getadminstats', { adminId }, { method: 'POST' });
+  }
+
+  static getAllUsers(adminId = 'ADMIN') {
+    return this.call('getallusers', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminUser(adminId, userData) {
+    return this.call('saveadminuser', { adminId, userData: JSON.stringify(userData) }, { method: 'POST' });
+  }
+
+  static deleteAdminUser(adminId, id) {
+    return this.call('deleteadminuser', { adminId, id }, { method: 'POST' });
+  }
+
+  static getAllTransactions(adminId = 'ADMIN') {
+    return this.call('getalltransactions', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminTransaction(adminId, txData) {
+    return this.call('saveadmintransaction', { adminId, txData: JSON.stringify(txData) }, { method: 'POST' });
+  }
+
+  static deleteAdminTransaction(adminId, id) {
+    return this.call('deleteadmintransaction', { adminId, id }, { method: 'POST' });
+  }
+
+  static getAdminPromos(adminId) {
+    return this.call('getadminpromos', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminPromo(adminId, promoData) {
+    return this.call('saveadminpromo', { adminId, promoData: JSON.stringify(promoData) }, { method: 'POST' });
+  }
+
+  static deleteAdminPromo(adminId, code) {
+    return this.call('deleteadminpromo', { adminId, code }, { method: 'POST' });
+  }
+
+  static getAdminPackages(adminId) {
+    return this.call('getadminpackages', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminPackage(adminId, packageData) {
+    return this.call('saveadminpackage', { adminId, packageData: JSON.stringify(packageData) }, { method: 'POST' });
+  }
+
+  static deleteAdminPackage(adminId, id) {
+    return this.call('deleteadminpackage', { adminId, id }, { method: 'POST' });
+  }
+
+  static getAdminTickets(adminId) {
+    return this.call('getadmintickets', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminTicket(adminId, ticketData) {
+    return this.call('saveadminticket', { adminId, ticketData: JSON.stringify(ticketData) }, { method: 'POST' });
+  }
+
+  static deleteAdminTicket(adminId, id) {
+    return this.call('deleteadminticket', { adminId, id }, { method: 'POST' });
+  }
+
+  static getAdminDNS(adminId) {
+    return this.call('getadmindns', { adminId }, { method: 'POST' });
+  }
+
+  static saveAdminDNS(adminId, dnsData) {
+    return this.call('saveadmindns', { adminId, dnsData: JSON.stringify(dnsData) }, { method: 'POST' });
+  }
+
+  static deleteAdminDNS(adminId, domain) {
+    return this.call('deleteadmindns', { adminId, domain }, { method: 'POST' });
+  }
 }
 
 // Export for use

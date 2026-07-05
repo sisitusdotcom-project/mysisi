@@ -1,0 +1,109 @@
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Support Tickets</h1>
+        <p class="admin-page-desc">Tanggapi pertanyaan dan keluhan teknis dari pengguna.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <button class="admin-btn" id="btn-add-ticket">
+            <i class="fas fa-plus"></i> Buat Tiket Manual
+        </button>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; height: 60vh;">
+    <!-- Ticket List -->
+    <div class="admin-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden;">
+        <div style="padding: 16px; border-bottom: 1px solid var(--admin-border);">
+            <div style="position: relative; width: 100%;">
+                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--admin-text-muted);"></i>
+                <input type="text" placeholder="Cari tiket..." 
+                    style="width: 100%; padding: 10px 16px 10px 48px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+            </div>
+        </div>
+        <div style="flex: 1; overflow-y: auto;" id="ticket-list">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <!-- Ticket Detail / Chat Area -->
+    <div class="admin-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+        <!-- Header -->
+        <div style="padding: 20px; border-bottom: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+            <div>
+                <h3 style="margin: 0 0 4px 0; font-family: var(--font-admin-heading);" id="active-ticket-subject">Pilih Tiket</h3>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--admin-text-muted);" id="active-ticket-info">Klik salah satu tiket di samping untuk melihat detail.</p>
+            </div>
+            <div id="active-ticket-actions" style="display: none;">
+                <button class="admin-btn" style="background: rgba(16, 185, 129, 0.1); color: var(--admin-success); padding: 8px 16px; border-radius: 8px;">
+                    <i class="fas fa-check"></i> Tandai Selesai
+                </button>
+            </div>
+        </div>
+        
+        <!-- Conversation Area -->
+        <div style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;" id="ticket-conversation">
+            <div style="text-align: center; color: var(--admin-text-muted); margin-top: 40px;">
+                <i class="fas fa-comments" style="font-size: 3rem; opacity: 0.2; margin-bottom: 16px; display: block;"></i>
+                Pilih tiket untuk mulai merespons
+            </div>
+        </div>
+        
+        <!-- Reply Box -->
+        <div style="padding: 20px; border-top: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); display: none;" id="ticket-reply-box">
+            <textarea placeholder="Tulis balasan Anda..." style="width: 100%; height: 80px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: var(--admin-surface); color: var(--admin-text-main); font-family: var(--font-admin-body); resize: none; margin-bottom: 12px;"></textarea>
+            <div style="display: flex; justify-content: space-between;">
+                <button class="admin-btn" style="background: transparent; border: 1px solid var(--admin-border); color: var(--admin-text-muted);">
+                    <i class="fas fa-paperclip"></i> Lampiran
+                </button>
+                <button class="admin-btn">
+                    <i class="fas fa-paper-plane"></i> Kirim Balasan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Ticket -->
+<div id="ticket-modal" class="admin-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="admin-card" style="width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <h3 id="ticket-modal-title" style="margin: 0 0 20px 0;">Buat Tiket Baru</h3>
+        <form id="ticket-form">
+            <input type="hidden" id="tck-id">
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Subjek Tiket</label>
+                <input type="text" id="tck-subject" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Email Pelanggan</label>
+                <input type="email" id="tck-user" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Prioritas</label>
+                    <select id="tck-priority" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: var(--admin-surface); color: white;">
+                        <option value="low">Rendah (Low)</option>
+                        <option value="medium" selected>Sedang (Medium)</option>
+                        <option value="high">Tinggi (High)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Status</label>
+                    <select id="tck-status" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: var(--admin-surface); color: white;">
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="btn-close-ticket" class="admin-btn" style="background: transparent; border: 1px solid var(--admin-border); color: var(--admin-text-main);">Batal</button>
+                <button type="submit" id="btn-save-ticket" class="admin-btn"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>

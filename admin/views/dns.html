@@ -1,0 +1,77 @@
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Manajemen DNS</h1>
+        <p class="admin-page-desc">Pantau dan kelola DNS Records dari domain pelanggan.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <button class="admin-btn" id="btn-add-dns">
+            <i class="fas fa-plus"></i> Tambah DNS
+        </button>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div style="position: relative; width: 300px;">
+            <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--admin-text-muted);"></i>
+            <input type="text" placeholder="Cari domain..." 
+                style="width: 100%; padding: 12px 16px 12px 48px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--admin-border);">
+                    <th style="padding: 16px; color: var(--admin-text-muted); font-weight: 500;">Domain</th>
+                    <th style="padding: 16px; color: var(--admin-text-muted); font-weight: 500;">Pemilik</th>
+                    <th style="padding: 16px; color: var(--admin-text-muted); font-weight: 500;">Total Records</th>
+                    <th style="padding: 16px; color: var(--admin-text-muted); font-weight: 500;">Status Nameserver</th>
+                    <th style="padding: 16px; color: var(--admin-text-muted); font-weight: 500; text-align: right;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="dns-table-body">
+                <!-- Injected via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Form DNS -->
+<div id="dns-modal" class="admin-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="admin-card" style="width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <h3 id="dns-modal-title" style="margin: 0 0 20px 0;">Tambah DNS Manual</h3>
+        <form id="dns-form">
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Nama Domain</label>
+                <input type="text" id="dns-domain" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Email Pemilik / User ID</label>
+                <input type="text" id="dns-user" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Total Records</label>
+                    <input type="number" id="dns-records" min="0" value="0" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--admin-text-muted);">Status Nameserver</label>
+                    <select id="dns-status" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--admin-border); background: var(--admin-surface); color: white;">
+                        <option value="pending">Pending</option>
+                        <option value="pointed">Pointed (Aktif)</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="btn-close-dns" class="admin-btn" style="background: transparent; border: 1px solid var(--admin-border); color: var(--admin-text-main);">Batal</button>
+                <button type="submit" id="btn-save-dns" class="admin-btn"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
