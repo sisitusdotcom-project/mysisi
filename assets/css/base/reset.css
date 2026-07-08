@@ -79,16 +79,3 @@ p {
   padding: clamp(4rem, 8vw, 6rem) 0;
 }
 
-/* ==========================================================================
-   ACCESSIBILITY: REDUCED MOTION (Impeccable standard)
-   ========================================================================== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
