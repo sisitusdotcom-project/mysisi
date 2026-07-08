@@ -40,6 +40,16 @@ body.admin-body {
   overflow: hidden; /* App takes full screen, content scrolls */
 }
 
+/* Override global headings for admin dark theme */
+.admin-body h1, 
+.admin-body h2, 
+.admin-body h3, 
+.admin-body h4, 
+.admin-body h5, 
+.admin-body h6 {
+  color: var(--admin-text-main);
+}
+
 /* Glassmorphism Utilities */
 .glass-panel {
   background: var(--admin-surface);

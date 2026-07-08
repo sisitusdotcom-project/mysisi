@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         // Open WhatsApp
-        const whatsappURL = `https://wa.me/628121528909?text=${whatsappMessage}`;
+        const whatsappURL = `https://wa.me/6281215289095?text=${whatsappMessage}`;
         window.open(whatsappURL, '_blank');
 
         // Reset form

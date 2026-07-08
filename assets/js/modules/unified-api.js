@@ -25,7 +25,13 @@ export class APIClient {
    * Simple, direct pattern matching sampel-mekanisme-GAS
    */
   static async call(action, data = {}, options = {}) {
-    const { method = 'GET' } = options;
+    let { method = 'POST' } = options;
+
+    // Use GET for data retrieval if no complex data
+    const getActions = ['checkdomain', 'getuserprofile', 'getorders', 'getorderdetail', 'getactivepromocodes'];
+    if (getActions.includes(action.toLowerCase())) {
+      method = 'GET';
+    }
 
     try {
       const response = await this.makeRequest(action, data, method, this.DEFAULT_TIMEOUT);
@@ -247,11 +253,12 @@ export class APIClient {
   /**
    * Update user profile
    */
-  static updateUserProfile(userId, displayName, whatsapp) {
+  static updateUserProfile(userId, displayName, whatsapp, photoURL) {
     return this.call('updateUserProfile', {
       userId,
       displayName,
-      whatsapp
+      whatsapp,
+      photoURL
     }, { method: 'POST' });
   }
 

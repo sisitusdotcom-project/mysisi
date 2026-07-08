@@ -46,7 +46,7 @@ class DashboardApp {
         // User logged out
         window.location.href = '/auth/';
       } else {
-        this.currentUser = e.detail;
+        this.currentUser = e.detail.user || e.detail;
       }
     });
 
@@ -149,6 +149,12 @@ class DashboardApp {
     if (routeConfig.requiresAuth && !this.currentUser) {
       // Redirect to auth page
       window.location.href = '/auth/';
+      return;
+    }
+
+    // Block admin from user dashboard
+    if (this.currentUser && this.currentUser.role === 'admin') {
+      window.location.href = '/admin/';
       return;
     }
 

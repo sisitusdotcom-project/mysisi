@@ -115,31 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ========== HIGHLIGHTS EXPAND/COLLAPSE ==========
-  const highlightSections = document.querySelectorAll('.tips-highlights');
-  
-  if (highlightSections.length > 0) {
-    highlightSections.forEach((section, index) => {
-      const wrapper = section.closest('.tips-card, .artikel-card');
-      const items = section.querySelectorAll('li');
-      
-      if (wrapper && items.length > 3) {
-        // Add expand button if more than 3 items
-        const expandBtn = document.createElement('button');
-        expandBtn.className = 'btn-expand-highlights';
-        expandBtn.textContent = 'Tampilkan lebih banyak ▼';
-        expandBtn.setAttribute('type', 'button');
-        
-        section.parentNode.insertBefore(expandBtn, section.nextSibling);
-        
-        expandBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          const isExpanded = section.style.maxHeight === 'none';
-          section.style.maxHeight = isExpanded ? '200px' : 'none';
-          this.textContent = isExpanded ? 'Tampilkan lebih banyak ▼' : 'Tampilkan lebih sedikit ▲';
-        });
-      }
-    });
-  }
+  // Button logic dihilangkan, sekarang menggunakan slider scrollbar otomatis via CSS
+
 
   // ========== COPY CODE BLOCK ==========
   const codeBlocks = document.querySelectorAll('pre code, .code-block');

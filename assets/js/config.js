@@ -80,7 +80,7 @@ export const footerContactData = [
   },
   {
     icon: "fas fa-phone-alt",
-    text: "<a href=\"tel:+62-812-1528-9095\" class=\"footer-kontak-link\">+62 812-3456-7890</a>"
+    text: "<a href=\"tel:+62-812-1528-9095\" class=\"footer-kontak-link\">+62 812-1528-9095</a>"
   },
   {
     icon: "fas fa-envelope",

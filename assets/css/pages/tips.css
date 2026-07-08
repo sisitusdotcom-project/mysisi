@@ -107,6 +107,21 @@
   border-radius: var(--radius);
   border-left: 4px solid var(--accent-cyan);
   margin-bottom: 1.5rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for Tips Highlights */
+.tips-highlights::-webkit-scrollbar {
+  width: 6px;
+}
+.tips-highlights::-webkit-scrollbar-track {
+  background: var(--bg-light);
+  border-radius: 4px;
+}
+.tips-highlights::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
 
 .tips-highlights ul {

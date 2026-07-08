@@ -4,7 +4,6 @@
 
 const SPREADSHEET_ID = '1qA1LzzVXmVaJ5U36lDuaoW2Eo4wiSkqL_0Y9i-Rav5s';
 const BASE_URL = 'https://sisitus.com';
-const ADMIN_EMAIL = 'hello@sisitus.com';
 
 const MIDTRANS_SNAP_URL = 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
@@ -14,6 +13,7 @@ const MIDTRANS_SNAP_URL = 'https://app.sandbox.midtrans.com/snap/v1/transactions
  * DO NOT commit real keys to git!
  */
 function initializeMidtransConfig() {
+  // Now using getConfigValue, this is kept for backwards compatibility
   const props = PropertiesService.getScriptProperties();
   const key = props.getProperty('MIDTRANS_SERVER_KEY');
   if (!key) {
@@ -207,64 +207,15 @@ function verifyPassword(inputPassword, storedPassword) {
  * Send verification email
  */
 function sendVerificationEmail(email, token, displayName) {
-  const verificationUrl = `${BASE_URL}/auth/verify-email.html?token=${encodeURIComponent(token)}`;
-  const subject = '🔐 Verifikasi Email SISITUS - Aktivasi Akun Anda';
-  const htmlBody = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #2563EB; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h1 style="margin: 0;">SISITUS</h1>
-        <p style="margin: 5px 0 0 0;">Verifikasi Email Anda</p>
-      </div>
-      
-      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
-        <h2>Halo ${displayName}!</h2>
-        
-        <p>Terima kasih telah mendaftar di SISITUS. Untuk melanjutkan, silakan verifikasi email Anda dengan mengklik tombol di bawah:</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" style="display: inline-block; background-color: #27ae60; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            ✓ Verifikasi Email
-          </a>
-        </div>
-        
-        <p>Atau salin link berikut ke browser Anda:</p>
-        <p style="background-color: #e8e8e8; padding: 10px; border-radius: 5px; word-break: break-all; font-size: 12px;">
-          ${verificationUrl}
-        </p>
-        
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-        
-        <p style="color: #7f8c8d; font-size: 12px;">
-          Link verifikasi ini akan berlaku selama 24 jam.<br>
-          Jika Anda tidak melakukan registrasi, abaikan email ini.
-        </p>
-      </div>
-    </div>
-  `;
-
-  // Try MailApp first (often works without requiring extra Gmail access scope on webapp deployments)
-  try {
-    const textBody = `Halo ${displayName}!\n\nTerima kasih telah mendaftar di SISITUS. Silakan verifikasi email Anda dengan membuka link berikut:\n${verificationUrl}\n\nSalam,\nSISITUS`;
-    MailApp.sendEmail({
-      to: email,
-      subject: subject,
-      body: textBody,
-      htmlBody: htmlBody,
-      replyTo: ADMIN_EMAIL
-    });
-    Logger.log(`Verification email sent to ${email} via MailApp`);
-  } catch (mailError) {
-    Logger.log(`MailApp failed: ${mailError}. Trying GmailApp fallback...`);
-    try {
-      GmailApp.sendEmail(email, subject, '', {
-        htmlBody: htmlBody,
-        replyTo: ADMIN_EMAIL
-      });
-      Logger.log(`Verification email sent to ${email} via GmailApp`);
-    } catch (gmailError) {
-      Logger.log(`GmailApp also failed: ${gmailError}`);
-      throw new Error(`Gagal mengirim email verifikasi: ${gmailError.message || gmailError}`);
-    }
+  const verificationUrl = `${BASE_URL}/auth/verify-email?token=${encodeURIComponent(token)}`;
+  
+  const success = sendTemplatedEmail('EMAIL-001', email, {
+    displayName: displayName,
+    verificationUrl: verificationUrl
+  });
+  
+  if (!success) {
+    Logger.log('Gagal mengirim template EMAIL-001 untuk ' + email);
   }
 }
 
@@ -595,31 +546,15 @@ function requestPasswordReset(email) {
         sheet.getRange(i + 1, 9).setValue(resetToken); // I - Token
 
         // Send reset email
-        const resetUrl = `${BASE_URL}/auth/reset-password.html?token=${encodeURIComponent(resetToken)}`;
-        const subject = '🔑 Reset Password SISITUS';
-        const htmlBody = `
-          <p>Anda meminta reset password. Klik link berikut untuk melanjutkan:</p>
-          <a href="${resetUrl}">${resetUrl}</a>
-          <p>Link ini berlaku selama 1 jam.</p>
-        `;
-
-        try {
-          MailApp.sendEmail({
-            to: email,
-            subject: subject,
-            body: `Anda meminta reset password. Klik link berikut untuk melanjutkan:\n${resetUrl}`,
-            htmlBody: htmlBody
-          });
-          Logger.log(`Reset email sent to ${email} via MailApp`);
-        } catch (mailError) {
-          Logger.log(`MailApp reset failed: ${mailError}. Trying GmailApp fallback...`);
-          try {
-            GmailApp.sendEmail(email, subject, '', { htmlBody });
-            Logger.log(`Reset email sent to ${email} via GmailApp`);
-          } catch (gmailError) {
-            Logger.log(`GmailApp reset also failed: ${gmailError}`);
-            throw new Error(`Gagal mengirim email reset password: ${gmailError.message || gmailError}`);
-          }
+        const resetUrl = `${BASE_URL}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+        
+        const success = sendTemplatedEmail('EMAIL-004', email, {
+          displayName: data[i][1] || 'Pengguna',
+          resetUrl: resetUrl
+        });
+        
+        if (!success) {
+          Logger.log('Gagal mengirim template EMAIL-004 untuk ' + email);
         }
 
         return buildResponse(true, null, 'Email reset password telah dikirim');
@@ -830,6 +765,9 @@ function updateUserProfile(userId, data) {
           }
           sheet.getRange(i + 1, 4).setValue(formattedPhone);
         }
+        if (data.photoURL !== undefined) {
+          sheet.getRange(i + 1, 5).setValue(data.photoURL);
+        }
 
         // Update timestamp
         sheet.getRange(i + 1, 7).setValue(new Date().toISOString());
@@ -837,7 +775,8 @@ function updateUserProfile(userId, data) {
         return buildResponse(true, {
           userId,
           displayName: data.displayName || sheetData[i][1],
-          whatsapp: data.whatsapp !== undefined ? data.whatsapp : sheetData[i][3]
+          whatsapp: data.whatsapp !== undefined ? data.whatsapp : sheetData[i][3],
+          photoURL: data.photoURL !== undefined ? data.photoURL : sheetData[i][4]
         }, 'Profil berhasil diperbarui');
       }
     }
@@ -905,8 +844,8 @@ function generateMidtransToken(orderId, email, phone, name, domain, packageId, t
     // Log start
     logApiCall('generateMidtransToken', '', email || '', 'POST', 'attempting', 200, 0, '', JSON.stringify({ orderId, total }), 'Payment token generation started');
 
-    // Get Midtrans Server Key from Properties
-    const serverKey = PropertiesService.getScriptProperties().getProperty('MIDTRANS_SERVER_KEY');
+    // Get Midtrans Server Key from CONFIG sheet
+    const serverKey = getConfigValue('MIDTRANS_SERVER_KEY');
     
     if (!serverKey) {
       Logger.log('CRITICAL: Midtrans Server Key not configured. Run initializeMidtransConfig() first');
@@ -1131,6 +1070,18 @@ function createOrder(orderData) {
       Logger.log(`Promo code ${orderData.promoCode} applied to order ${orderId}`);
     }
 
+    // Send order confirmation email
+    try {
+      sendTemplatedEmail('EMAIL-003', orderData.email, {
+        userName: orderData.name || orderData.email.split('@')[0],
+        domain: orderData.domain,
+        orderId: orderId,
+        totalPrice: orderData.total.toLocaleString('id-ID')
+      });
+    } catch (emailError) {
+      Logger.log('Failed to send order confirmation email: ' + emailError);
+    }
+
     // Log success
     logApiCall('createOrder', orderData.userId, orderData.email, 'POST', 'success', 200, Date.now() - startTime, '', JSON.stringify({ orderId, total: orderData.total, promoCode: orderData.promoCode || '' }), 'Order created successfully');
 
@@ -1311,7 +1262,7 @@ function syncOrderStatusWithMidtrans(orderId) {
       return buildResponse(false, null, 'Order ID diperlukan', 'MISSING_ORDER_ID');
     }
 
-    const serverKey = PropertiesService.getScriptProperties().getProperty('MIDTRANS_SERVER_KEY');
+    const serverKey = getConfigValue('MIDTRANS_SERVER_KEY');
     if (!serverKey) {
       return buildResponse(false, null, 'Server Key tidak dikonfigurasi', 'SERVER_KEY_MISSING');
     }
@@ -1667,12 +1618,16 @@ function handleMidtransWebhook(webhookData) {
       
       // Send confirmation email (optional)
       try {
-        MailApp.sendEmail(
-          userEmail,
-          'Pembayaran Berhasil - ' + domain,
-          `Halo ${userName},\n\nPembayaran untuk domain ${domain} telah berhasil diproses.\n\nID Transaksi: ${transactionId}\nStatus Pesanan: ${orderStatus}\n\nTerima kasih telah bergabung dengan kami!`,
-          { name: 'MySiS Support' }
-        );
+        const success = sendTemplatedEmail('EMAIL-002', userEmail, {
+          userName: userName,
+          domain: domain,
+          transactionId: transactionId,
+          orderStatus: orderStatus
+        });
+        
+        if (!success) {
+          Logger.log('Gagal mengirim template EMAIL-002 untuk ' + userEmail);
+        }
       } catch (emailError) {
         Logger.log('Error sending confirmation email: ' + emailError);
       }
@@ -1810,45 +1765,46 @@ function ensureEmailTemplatesSheet() {
       'Variables',                // F
       'Status',                   // G
       'Created At',               // H
-      'Updated At'                // I
+      'Updated At',               // I
+      'Body Content'              // J
+    ]);
+  }
+  
+  return sheet;
+}
+
+/**
+ * CONFIG Sheet - Global configuration settings
+ */
+function ensureConfigSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName('CONFIG');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('CONFIG');
+    sheet.appendRow([
+      'Config Key',               // A
+      'Config Value',             // B
+      'Config Group',             // C
+      'Description',              // D
+      'Updated At'                // E
     ]);
     
-    // Populate with default templates
-    sheet.appendRow([
-      'EMAIL-001',
-      'Email Verification',
-      '🔐 Verifikasi Email SISITUS - Aktivasi Akun Anda',
-      'html',
-      'Sent after user registration',
-      '{displayName}, {verificationUrl}',
-      'active',
-      new Date().toISOString(),
-      new Date().toISOString()
-    ]);
+    // Default configs
+    const defaults = [
+      ['ADMIN_EMAIL', 'hello@sisitus.com', 'general', 'Email utama admin'],
+      ['MIDTRANS_SERVER_KEY', '', 'payment', 'Midtrans Server Key (Rahasia)'],
+      ['MIDTRANS_MERCHANT_ID', '', 'payment', 'Midtrans Merchant ID'],
+      ['SMTP_HOST', '', 'email', 'SMTP Server Host'],
+      ['SMTP_PORT', '', 'email', 'SMTP Server Port'],
+      ['SMTP_USER', '', 'email', 'SMTP Username'],
+      ['SMTP_PASS', '', 'email', 'SMTP Password']
+    ];
     
-    sheet.appendRow([
-      'EMAIL-002',
-      'Payment Confirmation',
-      'Pembayaran Berhasil - {domain}',
-      'html',
-      'Sent after successful payment',
-      '{userName}, {domain}, {transactionId}, {orderStatus}',
-      'active',
-      new Date().toISOString(),
-      new Date().toISOString()
-    ]);
-    
-    sheet.appendRow([
-      'EMAIL-003',
-      'Order Confirmation',
-      'Pesanan Anda Telah Diterima - {domain}',
-      'html',
-      'Sent after order creation',
-      '{userName}, {domain}, {orderId}, {totalPrice}',
-      'active',
-      new Date().toISOString(),
-      new Date().toISOString()
-    ]);
+    const now = new Date().toISOString();
+    defaults.forEach(config => {
+      sheet.appendRow([...config, now]);
+    });
   }
   
   return sheet;
@@ -2294,6 +2250,14 @@ function doPost(e) {
         return respondJson(registerUser(params));
       case 'loginuser':
         return respondJson(loginUser(params.email, params.password));
+      case 'getsettings':
+        return respondJson(getSettings());
+      case 'savesettings':
+        return respondJson(saveSettings(params.adminId, params.settings));
+      case 'getemailtemplates':
+        return respondJson(getEmailTemplates());
+      case 'saveemailtemplate':
+        return respondJson(saveEmailTemplate(params.adminId, params.template));
       case 'verifyemailtoken':
         return respondJson(verifyEmailToken(params.token));
       case 'verifygoogletoken':
@@ -2560,6 +2524,8 @@ function getAllUsers(adminId) {
     const data = sheet.getDataRange().getValues();
     const users = [];
     
+    const dynamicAdminEmail = getConfigValue('ADMIN_EMAIL');
+    
     for (let i = 1; i < data.length; i++) {
       users.push({
         id: data[i][0],
@@ -2567,7 +2533,7 @@ function getAllUsers(adminId) {
         email: data[i][2],
         joined: data[i][5],
         status: data[i][10],
-        role: data[i][2] === ADMIN_EMAIL ? 'admin' : 'customer'
+        role: data[i][2] === dynamicAdminEmail ? 'admin' : 'customer'
       });
     }
     
@@ -2616,14 +2582,14 @@ function saveAdminUser(adminId, userData) {
       rowData[8] = data[rowIndex - 1][8]; // Preserve Verification Token
       rowData[9] = data[rowIndex - 1][9]; // Preserve Password Hash
       if (userData.password) {
-         // If admin changes password
-         rowData[9] = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, userData.password).map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join('');
+         // If admin changes password, use the standard hashPassword function (which adds salt)
+         rowData[9] = hashPassword(userData.password);
       }
       sheet.getRange(rowIndex, 1, 1, 13).setValues([rowData]);
       return buildResponse(true, rowData, 'User updated');
     } else {
       if (userData.password) {
-         rowData[9] = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, userData.password).map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join('');
+         rowData[9] = hashPassword(userData.password);
       }
       sheet.appendRow(rowData);
       return buildResponse(true, rowData, 'User created');
@@ -3090,6 +3056,247 @@ function deleteAdminDNS(adminId, domain) {
       }
     }
     return buildResponse(false, null, 'DNS not found');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+/**
+ * Helper to get a config value from CONFIG sheet
+ */
+function getConfigValue(key) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('CONFIG');
+    if (!sheet) return '';
+    
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === key) {
+        return data[i][1];
+      }
+    }
+    return '';
+  } catch (error) {
+    Logger.log('Error getting config value for ' + key + ': ' + error);
+    return '';
+  }
+}
+
+/**
+ * Helper to set a config value to CONFIG sheet
+ */
+function setConfigValue(key, value) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('CONFIG');
+    if (!sheet) return false;
+    
+    const data = sheet.getDataRange().getValues();
+    const now = new Date().toISOString();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === key) {
+        sheet.getRange(i + 1, 2).setValue(value);
+        sheet.getRange(i + 1, 5).setValue(now);
+        return true;
+      }
+    }
+    
+    // If key not found, add it
+    sheet.appendRow([key, value, 'general', 'Added via API', now]);
+    return true;
+  } catch (error) {
+    Logger.log('Error setting config value for ' + key + ': ' + error);
+    return false;
+  }
+}
+
+/**
+ * Send an email using a template from EMAIL_TEMPLATES
+ */
+function sendTemplatedEmail(templateId, recipient, variables) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('EMAIL_TEMPLATES');
+    if (!sheet) {
+      Logger.log('EMAIL_TEMPLATES sheet not found.');
+      return false;
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    let templateRow = null;
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === templateId && data[i][6] === 'active') {
+        templateRow = data[i];
+        break;
+      }
+    }
+    
+    if (!templateRow) {
+      Logger.log('Template ' + templateId + ' not found or not active.');
+      return false;
+    }
+    
+    let subject = templateRow[2] || '';
+    let htmlBody = templateRow[9] || '';
+    
+    // Replace variables in format {variableName}
+    if (variables && typeof variables === 'object') {
+      for (const [key, value] of Object.entries(variables)) {
+        const regex = new RegExp(`{${key}}`, 'g');
+        subject = subject.replace(regex, value);
+        htmlBody = htmlBody.replace(regex, value);
+      }
+    }
+    
+    // Get Admin Email or SMTP Config (we will use default MailApp for now, but could use SMTP if needed)
+    const adminEmail = getConfigValue('ADMIN_EMAIL');
+    
+    try {
+      const options = {
+        htmlBody: htmlBody
+      };
+      if (adminEmail) options.replyTo = adminEmail;
+      
+      MailApp.sendEmail({
+        to: recipient,
+        subject: subject,
+        ...options
+      });
+      Logger.log(`Sent templated email ${templateId} to ${recipient} via MailApp`);
+      return true;
+    } catch (mailError) {
+      Logger.log(`MailApp failed for template ${templateId}: ${mailError}. Trying GmailApp fallback...`);
+      try {
+        const fallbackOptions = {
+          htmlBody: htmlBody
+        };
+        if (adminEmail) fallbackOptions.replyTo = adminEmail;
+        
+        GmailApp.sendEmail(recipient, subject, '', fallbackOptions);
+        Logger.log(`Sent templated email ${templateId} to ${recipient} via GmailApp`);
+        return true;
+      } catch (gmailError) {
+        Logger.log(`GmailApp also failed for template ${templateId}: ${gmailError}`);
+        return false;
+      }
+    }
+  } catch (error) {
+    Logger.log('Error in sendTemplatedEmail: ' + error);
+    return false;
+  }
+}
+
+/**
+ * Get all configs as a dictionary
+ */
+function getSettings() {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('CONFIG');
+    if (!sheet) {
+      sheet = ensureConfigSheet();
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    let settings = {};
+    
+    for (let i = 1; i < data.length; i++) {
+      settings[data[i][0]] = data[i][1];
+    }
+    
+    return buildResponse(true, settings, 'Settings retrieved successfully');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+/**
+ * Save multiple settings
+ */
+function saveSettings(adminId, settingsObj) {
+  try {
+    if (!adminId) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    
+    // Convert stringified json if needed
+    if (typeof settingsObj === 'string') {
+      settingsObj = JSON.parse(settingsObj);
+    }
+    
+    for (const [key, value] of Object.entries(settingsObj)) {
+      setConfigValue(key, value);
+    }
+    
+    return buildResponse(true, null, 'Settings saved successfully');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+/**
+ * Get all email templates
+ */
+function getEmailTemplates() {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('EMAIL_TEMPLATES');
+    if (!sheet) {
+      sheet = ensureEmailTemplatesSheet();
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    let templates = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      templates.push({
+        id: data[i][0],
+        name: data[i][1],
+        subject: data[i][2],
+        type: data[i][3],
+        useCase: data[i][4],
+        variables: data[i][5],
+        status: data[i][6],
+        createdAt: data[i][7],
+        updatedAt: data[i][8],
+        bodyHtml: data[i][9] || ''
+      });
+    }
+    
+    return buildResponse(true, templates, 'Templates retrieved successfully');
+  } catch (error) {
+    return buildResponse(false, null, error.toString(), 'ERROR');
+  }
+}
+
+/**
+ * Save single email template
+ */
+function saveEmailTemplate(adminId, templateObj) {
+  try {
+    if (!adminId) return buildResponse(false, null, 'Unauthorized', 'UNAUTHORIZED');
+    
+    if (typeof templateObj === 'string') {
+      templateObj = JSON.parse(templateObj);
+    }
+    
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('EMAIL_TEMPLATES');
+    if (!sheet) return buildResponse(false, null, 'Sheet not found');
+    
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === templateObj.id) {
+        if (templateObj.subject !== undefined) sheet.getRange(i + 1, 3).setValue(templateObj.subject);
+        if (templateObj.bodyHtml !== undefined) sheet.getRange(i + 1, 10).setValue(templateObj.bodyHtml);
+        sheet.getRange(i + 1, 9).setValue(new Date().toISOString());
+        return buildResponse(true, null, 'Template saved successfully');
+      }
+    }
+    
+    return buildResponse(false, null, 'Template not found', 'NOT_FOUND');
   } catch (error) {
     return buildResponse(false, null, error.toString(), 'ERROR');
   }

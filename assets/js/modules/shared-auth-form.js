@@ -697,8 +697,8 @@ export class SharedAuthForm {
         if (this.options.onLoginSuccess) {
           this.options.onLoginSuccess(result.data);
         } else {
-          // Default: redirect to dashboard
-          window.location.href = '/dashboard/';
+          // Default: redirect to dashboard or admin
+          window.location.href = result.data.role === 'admin' ? '/admin/' : '/dashboard/';
         }
       }, 1500);
 

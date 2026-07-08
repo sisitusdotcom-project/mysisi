@@ -74,9 +74,9 @@ window.handleGoogleSignIn = async function(response) {
 
     // Check if there's pending checkout in cart
     const cartSummary = CartManager.getSummary();
-    let redirectUrl = '/dashboard/';
+    let redirectUrl = result.data.role === 'admin' ? '/admin/' : '/dashboard/';
     
-    if (cartSummary.itemCount > 0) {
+    if (cartSummary.itemCount > 0 && result.data.role !== 'admin') {
       // After login, redirect to CART to view domains + addons
       // NOT directly to checkout (user should see cart summary first)
       redirectUrl = `/dashboard/#!/dashboard/keranjang`;
@@ -111,10 +111,9 @@ function initPage() {
     return; // Stop further initialization
   }
 
-  // 2. If already logged in, redirect to dashboard
+  // 2. If already logged in, redirect to dashboard or admin
   if (AuthManager.isLoggedIn()) {
-
-    window.location.href = '/dashboard/';
+    window.location.href = AuthManager.getCurrentUser()?.role === 'admin' ? '/admin/' : '/dashboard/';
     return; // Stop further initialization
   }
 
@@ -202,9 +201,9 @@ async function handleEmailVerification(token) {
 
     // Check if there's pending checkout in cart
     const cartSummary = CartManager.getSummary();
-    let redirectUrl = '/dashboard/';
+    let redirectUrl = response.data.role === 'admin' ? '/admin/' : '/dashboard/';
     
-    if (cartSummary.itemCount > 0) {
+    if (cartSummary.itemCount > 0 && response.data.role !== 'admin') {
       // After email verification, redirect to CART to view domains + addons
       // NOT directly to checkout (user should see cart summary first)
       redirectUrl = `/dashboard/#!/dashboard/keranjang`;
@@ -364,9 +363,9 @@ async function handleLogin(e) {
 
     // Check if there's pending checkout in cart
     const cartSummary = CartManager.getSummary();
-    let redirectUrl = '/dashboard/';
+    let redirectUrl = response.data.role === 'admin' ? '/admin/' : '/dashboard/';
     
-    if (cartSummary.itemCount > 0) {
+    if (cartSummary.itemCount > 0 && response.data.role !== 'admin') {
       // After login with cart items, redirect to CART to view domains + addons
       // NOT directly to checkout (user should see cart summary first)
       redirectUrl = `/dashboard/#!/dashboard/keranjang`;

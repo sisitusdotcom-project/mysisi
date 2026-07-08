@@ -431,7 +431,7 @@ header.scroll {
 .dropdown-item:focus,
 .nav-mobile-dropdown-link:focus {
   outline: 2px solid var(--primary-blue);
-  outline-offset: 2px;
+  outline-offset: -2px;
   border-radius: 4px;
 }
 

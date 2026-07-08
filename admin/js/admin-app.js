@@ -18,7 +18,7 @@ class AdminApp {
     // Render sidebar and navbar
     this.sidebar = new AdminSidebar(this);
     this.sidebar.render();
-    
+
     this.navbar = new AdminNavbar();
     this.navbar.render();
 
@@ -73,6 +73,11 @@ class AdminApp {
         page: 'settings',
         title: 'Pengaturan Sistem',
         loadModule: () => import('./modules/settings.js')
+      },
+      '/admin/profile': {
+        page: 'profile',
+        title: 'Profil Admin',
+        loadModule: () => import('./modules/profile.js')
       }
     };
   }
@@ -99,34 +104,34 @@ class AdminApp {
 
     this.currentRoute = route;
     const routeConfig = this.routes[route];
-    
+
     // Update sidebar UI
     if (this.sidebar) this.sidebar.setActive(route);
-    
+
     // Update Navbar title
     if (this.navbar) this.navbar.setTitle(routeConfig.title);
-    
+
     document.title = `${routeConfig.title} - Admin SISITUS`;
 
     try {
       this.showLoading();
-      
+
       // Load JS module
       const module = await routeConfig.loadModule();
-      
+
       // Load HTML view
       const response = await fetch(`/admin/views/${routeConfig.page}.html`);
       if (!response.ok) throw new Error(`View not found: ${routeConfig.page}`);
       const html = await response.text();
-      
+
       const contentArea = document.getElementById('admin-content');
       contentArea.innerHTML = html;
-      
+
       // Run module logic
       if (module.render) {
         await module.render();
       }
-      
+
       contentArea.scrollTop = 0;
     } catch (error) {
       console.error('Routing Error:', error);

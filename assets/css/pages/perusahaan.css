@@ -639,6 +639,7 @@
 
 .company-team-section .section-header {
   margin-bottom: clamp(3rem, 6vw, 4rem);
+  text-align: center;
 }
 
 .team-grid {
@@ -754,7 +755,7 @@
 .team-cta {
   text-align: center;
   padding: clamp(2rem, 4vw, 3rem);
-  background: linear-gradient(135deg, var(--color-primary) 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #2563eb 100%);
   border-radius: var(--radius-large);
   color: white;
 }
@@ -772,3 +773,4 @@
 
 .team-cta .btn {
   margin: 0 auto;
+}

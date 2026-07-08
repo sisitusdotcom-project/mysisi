@@ -68,7 +68,7 @@ export class DashboardSidebar {
 
     container.innerHTML = `
       <div class="sidebar-brand-container">
-        <a href="/" class="sidebar-logo">
+        <a href="#!/dashboard/" class="sidebar-logo">
           <img src="/assets/img/logo/logo512x512.webp" alt="SISITUS" class="sidebar-logo-img">
           <span class="sidebar-logo-text">SISITUS</span>
         </a>

@@ -46,14 +46,32 @@ export class AdminSidebar {
           <i class="fas fa-sliders"></i> Pengaturan
         </a>
         
+        <a href="#!/admin/profile" class="admin-nav-item" data-route="/admin/profile">
+          <i class="fas fa-user-circle"></i> Profil Admin
+        </a>
       </nav>
       
-      <div style="padding: 20px; border-top: 1px solid var(--admin-border);">
-        <a href="/dashboard/" class="admin-nav-item" style="color: var(--admin-text-muted);">
+      <div style="padding: 20px; border-top: 1px solid var(--admin-border); display: flex; flex-direction: column; gap: 10px;">
+        <a href="/" class="admin-nav-item" style="color: var(--admin-text-muted);">
           <i class="fas fa-arrow-left"></i> Kembali ke Web
         </a>
+        <button id="sidebar-logout-btn" class="admin-nav-item" style="color: var(--admin-danger); background: transparent; border: none; text-align: left; width: 100%; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
       </div>
     `;
+    
+    // Setup logout listener
+    const logoutBtn = this.container.querySelector('#sidebar-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        if (confirm('Apakah Anda yakin ingin keluar dari Admin Panel?')) {
+          const { AuthManager } = await import('/assets/js/modules/unified-auth.js');
+          AuthManager.clearSession();
+          window.location.href = '/admin/login.html';
+        }
+      });
+    }
   }
 
   setActive(route) {

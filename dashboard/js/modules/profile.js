@@ -32,6 +32,8 @@ export async function render(currentUser) {
     const formEditProfile = document.getElementById('form-edit-profile');
     if (formEditProfile) {
       document.getElementById('input-name').value = user.displayName || '';
+      const inputPhoto = document.getElementById('input-photo');
+      if (inputPhoto) inputPhoto.value = user.photoURL || '';
       document.getElementById('input-whatsapp').value = user.whatsapp || '';
 
       formEditProfile.addEventListener('submit', async (e) => {
@@ -48,6 +50,55 @@ export async function render(currentUser) {
         e.preventDefault();
         await handlePasswordChange(currentUser.userId);
       });
+      
+      const newPwdInput = document.getElementById('input-new-password');
+      if (newPwdInput) {
+        newPwdInput.addEventListener('input', function() {
+          const strengthDiv = document.getElementById('user-password-strength');
+          const strengthBar = document.getElementById('user-strength-bar');
+          const strengthText = document.getElementById('user-strength-text');
+          
+          if (!this.value) {
+            strengthDiv.style.display = 'none';
+            return;
+          }
+          
+          strengthDiv.style.display = 'block';
+          
+          const checks = {
+            length: this.value.length >= 8,
+            hasLower: /[a-z]/.test(this.value),
+            hasUpper: /[A-Z]/.test(this.value),
+            hasNumber: /[0-9]/.test(this.value),
+            hasSpecial: /[^A-Za-z0-9]/.test(this.value)
+          };
+          
+          const strength = Object.values(checks).filter(Boolean).length;
+          let text = '', className = '';
+          
+          if (strength <= 2) {
+            text = 'Lemah';
+            className = 'strength-weak';
+            strengthBar.style.background = '#ef4444';
+          } else if (strength === 3) {
+            text = 'Sedang';
+            className = 'strength-fair';
+            strengthBar.style.background = '#f59e0b';
+          } else if (strength === 4) {
+            text = 'Kuat';
+            className = 'strength-good';
+            strengthBar.style.background = '#3b82f6';
+          } else {
+            text = 'Sangat Kuat';
+            className = 'strength-strong';
+            strengthBar.style.background = '#10b981';
+          }
+          
+          strengthBar.className = `strength-bar ${className}`;
+          strengthBar.style.width = (strength * 20) + '%';
+          strengthText.textContent = text;
+        });
+      }
     }
 
   } catch (error) {
@@ -63,6 +114,8 @@ export async function render(currentUser) {
 async function handleProfileUpdate(userId) {
   try {
     const displayName = document.getElementById('input-name').value.trim();
+    const photoInput = document.getElementById('input-photo');
+    const photoURL = photoInput ? photoInput.value.trim() : '';
     const whatsapp = document.getElementById('input-whatsapp').value.trim();
 
     if (!displayName || displayName.length < 3) {
@@ -70,16 +123,19 @@ async function handleProfileUpdate(userId) {
       return;
     }
 
-    const result = await APIClient.updateUserProfile(userId, displayName, whatsapp);
+    const result = await APIClient.updateUserProfile(userId, displayName, whatsapp, photoURL);
 
     if (result.success) {
       // Update session
       const user = DashboardAuth.getCurrentUser();
       user.displayName = displayName;
       user.whatsapp = whatsapp;
+      user.photoURL = photoURL;
       DashboardAuth.updateSession(user);
 
       showSuccess('Profil berhasil diperbarui');
+    } else {
+      throw new Error(result.message || 'Gagal memperbarui profil');
     }
 
   } catch (error) {
@@ -113,6 +169,8 @@ async function handlePasswordChange(userId) {
     if (result.success) {
       showSuccess('Password berhasil diubah');
       document.getElementById('form-change-password').reset();
+    } else {
+      throw new Error(result.message || 'Gagal mengubah password');
     }
 
   } catch (error) {

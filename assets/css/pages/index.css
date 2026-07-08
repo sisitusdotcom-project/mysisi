@@ -179,77 +179,47 @@
   color: var(--text-primary);
 }
 
-/* ========== SERVICES DESCRIPTION ========== */
-.services-description {
-  background: linear-gradient(135deg, #f0f7ff 0%, #f9f3ff 100%);
-  border: 2px solid var(--primary-blue);
-  border-radius: var(--radius-large);
-  padding: 0;
+/* ========== VALUE IMAGES SLIDESHOW ========== */
+.value-images-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
   margin-bottom: clamp(2rem, 3vw, 3rem);
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
 }
 
-.services-description-inner {
-  padding: clamp(2rem, 3vw, 2.5rem);
-  text-align: center;
+.value-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  opacity: 0;
+  animation: slideFadeShow 15s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
-.services-description h3 {
-  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
-  color: var(--text-primary);
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  line-height: var(--line-height-tight);
+.value-img:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.highlight-price {
-  color: var(--primary-blue);
-  font-weight: 700;
-  font-size: 1.1em;
+.value-img:nth-child(1) {
+  animation-delay: 0s;
 }
 
-.guarantee-section h4 {
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
-  color: var(--text-primary);
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+.value-img:nth-child(2) {
+  animation-delay: 5s;
 }
 
-.guarantee-section h4 i {
-  color: var(--primary-blue);
+.value-img:nth-child(3) {
+  animation-delay: 10s;
 }
 
-.guarantee-section ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-}
-
-.guarantee-section li {
-  color: var(--text-secondary);
-  font-size: var(--teks-standar);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-weight: 500;
-}
-
-.guarantee-section li span {
-  font-weight: 500;
-}
-
-.guarantee-section i {
-  color: var(--primary-blue);
-  font-size: 1.2rem;
-  flex-shrink: 0;
+@keyframes slideFadeShow {
+  0% { opacity: 0; transform: translateY(15px) scale(0.98); }
+  3.33% { opacity: 1; transform: translateY(0) scale(1); }
+  30% { opacity: 1; transform: translateY(0) scale(1.03); }
+  33.33% { opacity: 0; transform: translateY(-15px) scale(1.05); }
+  100% { opacity: 0; transform: translateY(-15px) scale(1.05); }
 }
 
 /* ========== SERVICES GRID CONTAINER ========== */

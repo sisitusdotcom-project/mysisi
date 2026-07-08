@@ -41,8 +41,8 @@
 /* Lock + Spin dengan easing disesuaikan untuk kelancaran */
 .logo-spin {
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: 60px;
+  height: 60px;
   animation:
     s-lock-compress 0.1s ease-out forwards,
     logo-spin-once 1s cubic-bezier(0.4, 1.2, 0.6, 1) forwards;
@@ -54,7 +54,7 @@
 .loader-top,
 .loader-bottom {
   position: absolute;
-  width: 76px;
+  width: 60px;
   height: auto;
   filter: none;
 }
@@ -73,7 +73,7 @@
 
 .brand-text {
   font-family: var(--font-utama);
-  font-size: 32px;
+  font-size: 40px;
   font-weight: 600;
   letter-spacing: -0.018em;
   display: flex;

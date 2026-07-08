@@ -28,23 +28,19 @@ function toggleDetails(packageId) {
       detailBlock.setAttribute('open', '');
       document.querySelector(`[onclick="toggleDetails('${packageId}')"]`).setAttribute('aria-expanded', 'true');
       
-      // Smooth scroll ke overview card paket yang dipilih
+      // Smooth scroll ke detail block yang dipilih
       setTimeout(() => {
-        // Scroll ke packages overview grid section
-        const overviewGrid = document.querySelector('.packages-overview-grid');
-        if (overviewGrid) {
-          const targetButton = document.querySelector(`[onclick="toggleDetails('${packageId}')"]`);
-          const targetCard = targetButton.closest('.package-overview');
+        if (detailBlock) {
+          const headerOffset = 120; // Offset untuk fixed header
+          const elementPosition = detailBlock.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
           
-          if (targetCard) {
-            const scrollTop = targetCard.offsetTop - 180; // Offset untuk header + spacing
-            window.scrollTo({
-              top: Math.max(0, scrollTop),
-              behavior: 'smooth'
-            });
-          }
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          });
         }
-      }, 350);
+      }, 100);
     }
   }
 }

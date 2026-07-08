@@ -42,6 +42,7 @@
   line-height: var(--line-height-tight);
   text-wrap: balance;
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: var(--bg-white);
 }
 
 /* Hero Description/Subtitle */
@@ -51,6 +52,7 @@
   max-width: 650px;
   margin: 0 auto;
   line-height: var(--line-height-relaxed);
+  color: var(--bg-white);
 }
 
 /* Hero with CTA (optional) */
@@ -554,6 +556,32 @@
   font-size: var(--teks-standar);
   font-weight: 600;
   transition: var(--transisi);
+}
+
+.detail-cta-section .cta-buttons .btn-secondary,
+.promo-cta-final-section .cta-buttons .btn-secondary,
+.layanan-cta-section .cta-buttons .btn-secondary,
+.tips-cta-section .cta-buttons .btn-secondary,
+.karir-cta-section .cta-buttons .btn-secondary,
+.company-cta-section .cta-buttons .btn-secondary,
+.about-cta-section .cta-buttons .btn-secondary,
+.kontak-cta-section .cta-buttons .btn-secondary {
+  background: transparent;
+  color: var(--white);
+  border: 2px solid var(--white);
+}
+
+.detail-cta-section .cta-buttons .btn-secondary:hover,
+.promo-cta-final-section .cta-buttons .btn-secondary:hover,
+.layanan-cta-section .cta-buttons .btn-secondary:hover,
+.tips-cta-section .cta-buttons .btn-secondary:hover,
+.karir-cta-section .cta-buttons .btn-secondary:hover,
+.company-cta-section .cta-buttons .btn-secondary:hover,
+.about-cta-section .cta-buttons .btn-secondary:hover,
+.kontak-cta-section .cta-buttons .btn-secondary:hover {
+  background: var(--white);
+  color: var(--text-primary);
+  transform: translateY(-3px);
 }
 
 .karir-cta-section .btn {

@@ -1,10 +1,10 @@
 <div class="admin-page-header">
     <div>
         <h1 class="admin-page-title">Pengaturan Sistem</h1>
-        <p class="admin-page-desc">Konfigurasi global platform SISITUS.</p>
+        <p class="admin-page-desc">Konfigurasi global platform SISITUS dan template email.</p>
     </div>
     <div>
-        <button class="admin-btn">
+        <button id="btn-save-settings" class="admin-btn admin-btn-primary">
             <i class="fas fa-save"></i> Simpan Perubahan
         </button>
     </div>
@@ -14,45 +14,124 @@
     
     <!-- Settings Navigation -->
     <div style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="admin-btn" style="background: var(--admin-primary); justify-content: flex-start; text-align: left;">
-            <i class="fas fa-globe" style="width: 24px;"></i> Umum
-        </button>
-        <button class="admin-btn" style="background: transparent; color: var(--admin-text-muted); justify-content: flex-start; text-align: left; border: 1px solid transparent;">
+        <button class="admin-btn tab-btn active" data-target="tab-email" style="background: var(--admin-primary); justify-content: flex-start; text-align: left;">
             <i class="fas fa-envelope" style="width: 24px;"></i> Email & SMTP
         </button>
-        <button class="admin-btn" style="background: transparent; color: var(--admin-text-muted); justify-content: flex-start; text-align: left; border: 1px solid transparent;">
+        <button class="admin-btn tab-btn" data-target="tab-payment" style="background: transparent; color: var(--admin-text-muted); justify-content: flex-start; text-align: left; border: 1px solid transparent;">
             <i class="fas fa-credit-card" style="width: 24px;"></i> Payment Gateway
         </button>
     </div>
 
     <!-- Settings Content -->
     <div class="admin-card" style="padding: 32px;">
-        <h3 style="margin: 0 0 24px 0; font-family: var(--font-admin-heading); border-bottom: 1px solid var(--admin-border); padding-bottom: 16px;">Pengaturan Umum</h3>
         
-        <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Nama Website</label>
-                <input type="text" value="SISITUS Web Builder" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
-            </div>
+        <!-- TAB EMAIL & SMTP -->
+        <div id="tab-email" class="settings-tab">
+            <h3 style="margin: 0 0 24px 0; font-family: var(--font-admin-heading); border-bottom: 1px solid var(--admin-border); padding-bottom: 16px;">Pengaturan Email & SMTP</h3>
             
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Email Admin Induk</label>
-                <input type="email" value="hello@sisitus.com" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
-            </div>
-            
-            <div style="display: flex; align-items: center; justify-content: space-between; max-width: 400px; padding: 16px; border: 1px solid var(--admin-border); border-radius: 8px; background: rgba(255,255,255,0.02);">
+            <div style="margin-bottom: 30px;">
+                <h4 style="margin-bottom: 16px;">Alamat Email Sistem</h4>
                 <div>
-                    <h4 style="margin: 0 0 4px 0;">Maintenance Mode</h4>
-                    <p style="margin: 0; font-size: 0.85rem; color: var(--admin-text-muted);">Tutup akses publik sementara.</p>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Email Admin Induk (Pengirim/Penerima Notifikasi)</label>
+                    <input type="email" id="config-ADMIN_EMAIL" class="form-control" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: var(--font-admin-body);">
                 </div>
-                <!-- Toggle Switch -->
-                <label style="position: relative; display: inline-block; width: 50px; height: 28px;">
-                    <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
-                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--admin-surface-hover); border: 1px solid var(--admin-border); transition: .4s; border-radius: 34px;">
-                        <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: var(--admin-text-muted); transition: .4s; border-radius: 50%;"></span>
-                    </span>
-                </label>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h4 style="margin-bottom: 16px;">Pengaturan SMTP (Opsional)</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 600px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">SMTP Host</label>
+                        <input type="text" id="config-SMTP_HOST" class="form-control" placeholder="smtp.gmail.com" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">SMTP Port</label>
+                        <input type="text" id="config-SMTP_PORT" class="form-control" placeholder="587" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">SMTP Username</label>
+                        <input type="text" id="config-SMTP_USER" class="form-control" placeholder="user@domain.com" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">SMTP Password</label>
+                        <input type="password" id="config-SMTP_PASS" class="form-control" placeholder="***" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--admin-border); padding-top: 24px;">
+                <h4 style="margin-bottom: 16px;">Template Email (HTML)</h4>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Pilih Template</label>
+                    <select id="select-email-template" class="form-control" style="width: 100%; max-width: 400px; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                        <option value="">-- Pilih Template --</option>
+                    </select>
+                </div>
+                
+                <div id="email-template-editor" style="display: none;">
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Subject Email</label>
+                        <input type="text" id="template-subject" class="form-control" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Body HTML & Live Preview</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <div style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 4px;">Kode HTML Mentah</div>
+                                <textarea id="template-body" class="form-control" rows="16" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main); font-family: monospace; resize: vertical;"></textarea>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="font-size: 0.85rem; color: var(--admin-info); margin-bottom: 4px;">Visual Preview (Bisa langsung ketik & edit teks di sini)</div>
+                                <iframe id="template-preview" style="flex-grow: 1; width: 100%; min-height: 340px; border: 1px solid var(--admin-border); border-radius: 8px; background: white;"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border);">
+                        <strong style="color: var(--admin-text-muted); font-size: 0.9rem;">Variabel Tersedia:</strong>
+                        <div id="template-variables" style="font-family: monospace; color: var(--admin-info); margin-top: 4px;"></div>
+                    </div>
+                    
+                    <button id="btn-save-template" class="admin-btn admin-btn-sm" style="background: var(--admin-info);">
+                        <i class="fas fa-save"></i> Simpan Template Saja
+                    </button>
+                </div>
             </div>
         </div>
+
+        <!-- TAB PAYMENT GATEWAY -->
+        <div id="tab-payment" class="settings-tab" style="display: none;">
+            <h3 style="margin: 0 0 24px 0; font-family: var(--font-admin-heading); border-bottom: 1px solid var(--admin-border); padding-bottom: 16px;">Midtrans Payment Gateway</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 24px; max-width: 600px;">
+                <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid var(--admin-warning); padding: 16px; border-radius: 8px; color: var(--admin-warning);">
+                    <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i> Pastikan URL Webhook di Midtrans Dashboard diarahkan ke Web App URL SISITUS.
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Merchant ID</label>
+                    <input type="text" id="config-MIDTRANS_MERCHANT_ID" class="form-control" placeholder="G..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--admin-text-muted);">Server Key (Rahasia)</label>
+                    <input type="password" id="config-MIDTRANS_SERVER_KEY" class="form-control" placeholder="SB-Mid-server-..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--admin-border); background: rgba(0,0,0,0.2); color: var(--admin-text-main);">
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<style>
+/* CSS khusus Settings agar toggle checkbox berfungsi visualnya (checked state diatur via js/inline) */
+input[type="checkbox"]:checked + span {
+  background-color: var(--admin-primary) !important;
+}
+input[type="checkbox"]:checked + span > span {
+  transform: translateX(24px);
+  background-color: white !important;
+}
+</style>

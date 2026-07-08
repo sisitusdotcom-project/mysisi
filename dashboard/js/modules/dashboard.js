@@ -6,6 +6,12 @@ import APIClient from '/assets/js/modules/unified-api.js';
 import { formatPrice } from '/assets/js/modules/unified-utils.js';
 
 export async function render(currentUser) {
+  // Redundant check in case dashboard-app.js is cached by the browser
+  if (currentUser && currentUser.role === 'admin') {
+    window.location.replace('/admin/');
+    return;
+  }
+  
   try {
     // Update welcome name dynamically
     let displayName = currentUser.displayName || 'Pelanggan';

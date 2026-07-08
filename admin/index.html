@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISITUS - Admin Control Panel</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
-    
+
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Styles -->
     <link rel="stylesheet" href="/assets/css/main.css"> <!-- Base styles -->
     <link rel="stylesheet" href="/admin/styles/admin-main.css"> <!-- Admin specific styles -->
 </head>
+
 <body class="admin-body dark-theme">
-    
+
     <!-- Main Admin Layout -->
     <div id="admin-app" class="admin-layout">
-        
+
         <!-- Sidebar Navigation -->
         <div id="admin-sidebar" class="admin-sidebar glass-panel"></div>
-        
+
         <!-- Main Content Area -->
         <div class="admin-wrapper">
-            
+
             <!-- Top Navigation -->
             <div id="admin-navbar" class="admin-navbar glass-panel"></div>
-            
+
             <!-- Dynamic Content Router Target -->
             <div id="admin-content" class="admin-main-content">
                 <div class="admin-loading-state">
@@ -37,7 +41,7 @@
                     <p>Memuat Sistem...</p>
                 </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -56,4 +60,5 @@
     <!-- Admin Application Scripts -->
     <script type="module" src="/admin/js/admin-app.js"></script>
 </body>
+
 </html>

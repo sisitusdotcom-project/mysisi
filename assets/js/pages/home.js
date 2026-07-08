@@ -54,53 +54,56 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ========== STATS COUNTER ANIMATION ==========
-  const animateCounter = (element) => {
-    const finalValue = element.innerText;
-    const numericValue = parseInt(finalValue.replace(/\D/g, ''));
-    const isPercentage = finalValue.includes('%');
-    const hasPlus = finalValue.includes('+');
-    
-    let currentValue = 0;
-    const duration = 2000;
-    const increment = numericValue / (duration / 50);
-    
-    const interval = setInterval(() => {
-      currentValue += increment;
-      if (currentValue >= numericValue) {
-        currentValue = numericValue;
-        clearInterval(interval);
-      }
-      
-      let displayValue = Math.floor(currentValue);
-      if (isPercentage) {
-        element.innerText = displayValue + '%';
-      } else if (hasPlus) {
-        element.innerText = displayValue + '+';
-      } else {
-        element.innerText = displayValue;
-      }
-    }, 50);
-  }
+  const statsSection = document.querySelector('.stats-section');
+  const statItems = document.querySelectorAll('.stat-text-item');
+  let hasAnimated = false;
 
-  // Trigger counter animation pada görünüm
-  const statItems = document.querySelectorAll('.stat-item h3');
-  if (statItems.length > 0) {
-    const observerConfig = {
-      threshold: 0.5
-    };
-    
+  const animateStats = () => {
+    if (hasAnimated || !statsSection) return;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting && !entry.target.dataset.animated) {
-          entry.target.dataset.animated = 'true';
-          animateCounter(entry.target);
-          observer.unobserve(entry.target);
+        if (entry.isIntersecting && !hasAnimated) {
+          hasAnimated = true;
+          statItems.forEach(box => {
+            const h3 = box.querySelector('h3');
+            if (!h3) return;
+
+            const text = h3.textContent.trim();
+            const numMatch = text.match(/(\d+)/);
+            
+            if (!numMatch) return;
+
+            const finalValue = numMatch[1];
+            const isPercentage = text.includes('%');
+            const hasPlus = text.includes('+');
+            const finalNum = parseInt(finalValue);
+            let currentNum = 0;
+            const increment = Math.ceil(finalNum / 30);
+            const duration = 1000;
+            const stepTime = duration / (finalNum / increment);
+
+            const counter = setInterval(() => {
+              currentNum += increment;
+              if (currentNum >= finalNum) {
+                currentNum = finalNum;
+                clearInterval(counter);
+              }
+              const display = isPercentage 
+                ? currentNum + '%' 
+                : (hasPlus ? currentNum + '+' : currentNum);
+              h3.textContent = display;
+            }, stepTime);
+          });
+          observer.disconnect();
         }
       });
-    }, observerConfig);
-    
-    statItems.forEach(item => observer.observe(item));
-  }
+    }, { threshold: 0.5 });
+
+    observer.observe(statsSection);
+  };
+
+  animateStats();
 
   // ========== TESTIMONIAL CAROUSEL ==========
   // Grid responsive untuk testimonials, dapat ditingkatkan dengan gesture di mobile

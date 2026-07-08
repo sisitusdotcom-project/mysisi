@@ -32,7 +32,7 @@ export async function render(currentUser) {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px;">
           <p style="color: var(--color-text-light); margin-bottom: 20px;">Belum ada domain terdaftar.</p>
-          <a href="/?section=cek-domain" class="btn btn-primary">Daftar Domain Baru</a>
+          <a href="#!/dashboard/checkout" class="btn btn-primary">Daftar Domain Baru</a>
         </div>
       `;
     } else {

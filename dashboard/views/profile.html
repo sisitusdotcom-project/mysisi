@@ -19,6 +19,11 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label">URL Foto Profil</label>
+        <input type="url" id="input-photo" class="form-control" placeholder="https://example.com/photo.jpg">
+      </div>
+
+      <div class="form-group">
         <label class="form-label">Nomor WhatsApp</label>
         <input type="tel" id="input-whatsapp" class="form-control" placeholder="08xxxxxxxxxx">
       </div>
@@ -38,7 +43,15 @@
 
       <div class="form-group">
         <label class="form-label">Password Baru</label>
-        <input type="password" id="input-new-password" class="form-control" required>
+        <input type="password" id="input-new-password" class="form-control" required autocomplete="new-password">
+        
+        <div class="password-strength" id="user-password-strength" style="display: none; margin-top: 8px;">
+          <div class="strength-meter" style="width: 100%; height: 4px; background: #eee; border-radius: 2px; margin-bottom: 5px; overflow: hidden;">
+            <div class="strength-bar" id="user-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s; border-radius: 2px;"></div>
+          </div>
+          <div class="strength-text" id="user-strength-text" style="font-size: 11px; color: #94a3b8;"></div>
+        </div>
+        
         <small>Minimal 8 karakter</small>
       </div>
 

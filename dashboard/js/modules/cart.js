@@ -195,7 +195,7 @@ export async function render(currentUser) {
       <div style="text-align: center; padding: 60px 20px;">
         <h2>❌ Error</h2>
         <p>${error.message}</p>
-        <a href="/" class="btn" style="display: inline-block; padding: 12px 24px; background: #2563EB; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+        <a href="#!/dashboard/checkout" class="btn" style="display: inline-block; padding: 12px 24px; background: #2563EB; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px;">
           Kembali ke Beranda
         </a>
       </div>
@@ -546,7 +546,7 @@ function renderEmptyCart() {
         <p class="empty-text">
           Belum ada domain di keranjang Anda. Mulai cari domain impian Anda!
         </p>
-        <a href="/?section=cek-domain" class="btn btn-primary">
+        <a href="#!/dashboard/checkout" class="btn btn-primary">
           <i class="fas fa-search"></i> Cari Domain
         </a>
       </div>
@@ -651,7 +651,7 @@ function renderAuthenticatedCart() {
                   <i class="fas fa-lock"></i> Lanjut ke Pembayaran
                 </button>
 
-                <a href="/?section=cek-domain" class="btn btn-secondary">
+                <a href="#!/dashboard/checkout" class="btn btn-secondary">
                   <i class="fas fa-search"></i> Cari Domain Lain
                 </a>
               </div>

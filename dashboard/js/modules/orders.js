@@ -24,7 +24,7 @@ export async function render(user) {
         tableBody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; padding: 30px;">
-              <p>Belum ada pesanan. <a href="/">Cari dan pesan domain sekarang</a></p>
+              <p>Belum ada pesanan. <a href="#!/dashboard/checkout">Cari dan pesan domain sekarang</a></p>
             </td>
           </tr>
         `;

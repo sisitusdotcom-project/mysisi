@@ -12,8 +12,14 @@ export class DashboardNavbar {
 
   render() {
     const container = document.getElementById('navbar');
-    const photoURL = this.user?.photoURL || '/assets/img/avatar-default.svg';
+    let photoURL = this.user?.photoURL || '/assets/img/avatar-default.svg';
     
+    if (photoURL.includes('drive.google.com/file/d/')) {
+      const match = photoURL.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        photoURL = `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
+    }
     container.innerHTML = `
       <div class="navbar-container">
         <!-- Mobile hamburger menu button -->
@@ -22,7 +28,7 @@ export class DashboardNavbar {
         </button>
 
         <div class="navbar-brand">
-          <a href="/" class="navbar-logo">
+          <a href="#!/dashboard/" class="navbar-logo">
             <img src="/assets/img/logo/logo512x512.webp" alt="SISITUS" class="logo-img">
             <span class="logo-text">Client Area</span>
           </a>
@@ -39,7 +45,7 @@ export class DashboardNavbar {
 
         <div class="navbar-actions">
           <!-- Buy Now green button -->
-          <a href="/?section=cek-domain" class="btn btn-success btn-buy-now">
+          <a href="#!/dashboard/checkout" class="btn btn-success btn-buy-now">
             <i class="fas fa-shopping-cart"></i> <span>Beli Layanan</span>
           </a>
 

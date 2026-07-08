@@ -11,7 +11,10 @@ const navElements = {
 function getLoggedInUser() {
   try {
     const userStr = localStorage.getItem('sisitus_user') || sessionStorage.getItem('sisitus_user');
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    const parsed = JSON.parse(userStr);
+    // Support both unified-auth wrapper format and direct format
+    return parsed.user ? parsed.user : parsed;
   } catch (e) {
     console.error('Error parsing user session:', e);
     return null;
@@ -25,13 +28,22 @@ function createProfileMenuItem(user) {
   
   const link = document.createElement('a');
   link.className = 'nav-desktop-link profile-link';
-  link.href = '/dashboard/';
+  link.href = user?.role === 'admin' ? '/admin/' : '/dashboard/';
   
   // Profile photo
   const defaultAvatarSVG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232563EB"%3E%3Ccircle cx="12" cy="8" r="4"/%3E%3Cpath d="M 12 14 C 7.6 14 4 16.2 4 19 L 4 22 L 20 22 L 20 19 C 20 16.2 16.4 14 12 14 Z"/%3E%3C/svg%3E';
+  
+  let profileSrc = user?.photoURL || defaultAvatarSVG;
+  if (profileSrc.includes('drive.google.com/file/d/')) {
+    const match = profileSrc.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      profileSrc = `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+  }
+
   const photoImg = document.createElement('img');
   photoImg.className = 'nav-profile-photo';
-  photoImg.src = user?.photoURL || defaultAvatarSVG;
+  photoImg.src = profileSrc;
   photoImg.alt = user?.displayName || 'Profile';
   photoImg.onerror = function() {
     this.src = defaultAvatarSVG;
@@ -221,13 +233,22 @@ const generateMobileMenu = () => {
     profileLi.className = 'nav-mobile-item nav-mobile-profile';
     const link = document.createElement('a');
     link.className = 'nav-mobile-link profile-link';
-    link.href = '/dashboard/';
+    link.href = loggedInUser?.role === 'admin' ? '/admin/' : '/dashboard/';
     
     // Profile photo
     const defaultAvatarSVG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232563EB"%3E%3Ccircle cx="12" cy="8" r="4"/%3E%3Cpath d="M 12 14 C 7.6 14 4 16.2 4 19 L 4 22 L 20 22 L 20 19 C 20 16.2 16.4 14 12 14 Z"/%3E%3C/svg%3E';
+    
+    let profileSrc = loggedInUser?.photoURL || defaultAvatarSVG;
+    if (profileSrc.includes('drive.google.com/file/d/')) {
+      const match = profileSrc.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        profileSrc = `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
+    }
+
     const photoImg = document.createElement('img');
     photoImg.className = 'nav-profile-photo';
-    photoImg.src = loggedInUser?.photoURL || defaultAvatarSVG;
+    photoImg.src = profileSrc;
     photoImg.alt = loggedInUser?.displayName || 'Profile';
     photoImg.onerror = function() {
       this.src = defaultAvatarSVG;
